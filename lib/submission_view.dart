@@ -40,11 +40,16 @@ class _SubmissionViewState extends State<SubmissionView> {
                         image: widget.submission.thumbnail.toString(),
                         fit: BoxFit.cover,
                       ),
-                      replacement: FadeInImage.assetNetwork(
+                      replacement: Container(
                         height: 70.0,
                         width: 50.0,
-                        image: "assets/placeholder.png",
-                        placeholder: "assets/placeholder.png",
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: AssetImage('assets/placeholder.png'),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),

@@ -26,9 +26,9 @@ class _CommentViewState extends State<CommentView> {
             children: <Widget>[
               Row(children: <Widget>[
                 Text("/u/${widget.comment.author}", style: Theme.of(context).textTheme.subtitle,),
-                Text("  - "),
+                Text("  • "),
                 Text("${widget.comment.score} points"),
-                Text("  - "),
+                Text("  • "),
                 Text("${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}")
               ],),
               Row(
