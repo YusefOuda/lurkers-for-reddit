@@ -68,29 +68,54 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               itemBuilder: (context, index) {
                 final commentAndDepth = _comments[index];
                 if (commentAndDepth.comment is Dart.MoreComments) {
-                  var parent = _comments.firstWhere((x) =>
-                      x.comment.fullname == commentAndDepth.comment.parentId);
-                  return MoreCommentsView(
-                      parentId: parent.comment.fullname,
-                      depth: parent.depth,
-                      onLoadTap: (String parentId) {
-                        var index = _comments.indexWhere((x) =>
-                            x.comment.parentId == parentId &&
-                            x.comment is Dart.MoreComments);
-                        var parentDepth = _comments
-                            .firstWhere((x) => x.comment.fullname == parentId)
-                            .depth;
-                        _comments[index].comment.comments().then((x) {
-                          _comments.removeAt(index);
-                          setState(() {
-                            x.forEach((c) {
-                              addToComments(c, index: index, depth: parentDepth);
-                              index++;
+                  CommentAndDepth parent;
+                  parent = _comments.firstWhere(
+                      (x) =>
+                          x.comment.fullname ==
+                          commentAndDepth.comment.parentId,
+                      orElse: () {});
+                  if (parent == null) {
+                    return MoreCommentsView(
+                        parentId: commentAndDepth.comment.fullname,
+                        depth: 0,
+                        onLoadTap: (String id) {
+                          var index = _comments.indexWhere((x) =>
+                              x.comment.fullname == id &&
+                              x.comment is Dart.MoreComments);
+                          _comments[index].comment.comments().then((x) {
+                            _comments.removeAt(index);
+                            setState(() {
+                              x.forEach((c) {
+                                addToComments(c, index: index);
+                                index++;
+                              });
                             });
                           });
                         });
-                        print("LOADING MORE $parentId");
-                      });
+                  } else {
+                    return MoreCommentsView(
+                        parentId: parent.comment.fullname,
+                        depth: parent.depth,
+                        onLoadTap: (String parentId) {
+                          var index = _comments.indexWhere((x) =>
+                              x.comment.parentId == parentId &&
+                              x.comment is Dart.MoreComments);
+                          var parentDepth = _comments
+                              .firstWhere((x) => x.comment.fullname == parentId)
+                              .depth;
+                          _comments[index].comment.comments().then((x) {
+                            _comments.removeAt(index);
+                            setState(() {
+                              x.forEach((c) {
+                                addToComments(c,
+                                    index: index, depth: parentDepth);
+                                index++;
+                              });
+                            });
+                          });
+                          print("LOADING MORE $parentId");
+                        });
+                  }
                 } else {
                   return CommentView(
                       comment: commentAndDepth.comment,
