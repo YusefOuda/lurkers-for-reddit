@@ -24,7 +24,8 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
 
   addToComments(comment, {index, depth}) {
     if (comment == null) return;
-    CommentAndDepth commentAndDepth = CommentAndDepth(comment: comment);
+    CommentAndDepth commentAndDepth =
+        CommentAndDepth(comment: comment, visible: true);
     if (depth != null) {
       commentAndDepth.depth = depth;
     } else if (comment is Dart.Comment) {
@@ -38,6 +39,17 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
     if (commentAndDepth.comment is Dart.MoreComments) return;
     commentAndDepth.comment.replies?.comments?.forEach((r) {
       addToComments(r);
+    });
+  }
+
+  collapseChildren(index, depth) {
+    var sublist = _comments.sublist(index + 1);
+    var endIndex =
+        sublist.indexWhere((x) => x.depth != null && x.depth <= depth);
+    setState(() {
+      sublist.sublist(0, endIndex).forEach((x) {
+        x.visible = !x.visible;
+      });
     });
   }
 
@@ -75,51 +87,67 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                           commentAndDepth.comment.parentId,
                       orElse: () {});
                   if (parent == null) {
-                    return MoreCommentsView(
-                        parentId: commentAndDepth.comment.fullname,
-                        depth: 0,
-                        onLoadTap: (String id) {
-                          var index = _comments.indexWhere((x) =>
-                              x.comment.fullname == id &&
-                              x.comment is Dart.MoreComments);
-                          _comments[index].comment.comments().then((x) {
-                            _comments.removeAt(index);
-                            setState(() {
-                              x.forEach((c) {
-                                addToComments(c, index: index);
-                                index++;
+                    return Visibility(
+                      visible: commentAndDepth.visible,
+                      child: MoreCommentsView(
+                          parentId: commentAndDepth.comment.fullname,
+                          depth: 0,
+                          onLoadTap: (String id) {
+                            var index = _comments.indexWhere((x) =>
+                                x.comment.fullname == id &&
+                                x.comment is Dart.MoreComments);
+                            _comments[index].comment.comments().then((x) {
+                              _comments.removeAt(index);
+                              setState(() {
+                                x.forEach((c) {
+                                  addToComments(c, index: index);
+                                  index++;
+                                });
                               });
                             });
-                          });
-                        });
+                          }),
+                    );
                   } else {
-                    return MoreCommentsView(
-                        parentId: parent.comment.fullname,
-                        depth: parent.depth,
-                        onLoadTap: (String parentId) {
-                          var index = _comments.indexWhere((x) =>
-                              x.comment.parentId == parentId &&
-                              x.comment is Dart.MoreComments);
-                          var parentDepth = _comments
-                              .firstWhere((x) => x.comment.fullname == parentId)
-                              .depth;
-                          _comments[index].comment.comments().then((x) {
-                            _comments.removeAt(index);
-                            setState(() {
-                              x.forEach((c) {
-                                addToComments(c,
-                                    index: index, depth: parentDepth);
-                                index++;
+                    return Visibility(
+                      visible: parent.visible,
+                      child: MoreCommentsView(
+                          parentId: parent.comment.fullname,
+                          depth: parent.depth,
+                          onLoadTap: (String parentId) {
+                            var index = _comments.indexWhere((x) =>
+                                x.comment.parentId == parentId &&
+                                x.comment is Dart.MoreComments);
+                            var parentDepth = _comments
+                                .firstWhere(
+                                    (x) => x.comment.fullname == parentId)
+                                .depth;
+                            _comments[index].comment.comments().then((x) {
+                              _comments.removeAt(index);
+                              setState(() {
+                                x.forEach((c) {
+                                  addToComments(c,
+                                      index: index, depth: parentDepth+1);
+                                  index++;
+                                });
                               });
                             });
-                          });
-                          print("LOADING MORE $parentId");
-                        });
+                            print("LOADING MORE $parentId");
+                          }),
+                    );
                   }
                 } else {
-                  return CommentView(
-                      comment: commentAndDepth.comment,
-                      depth: commentAndDepth.depth);
+                  return InkWell(
+                    onTap: () {
+                      collapseChildren(index, commentAndDepth.depth);
+                    },
+                    child: Visibility(
+                      child: CommentView(
+                          comment: commentAndDepth.comment,
+                          depth: commentAndDepth.depth),
+                      visible: commentAndDepth.visible,
+                      replacement: Container(),
+                    ),
+                  );
                 }
               },
             ),
