@@ -12,27 +12,31 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
   @override
   void initState() {
     super.initState();
-    widget.submission.refreshComments().then((x) {
-      var cmts = widget.submission.comments.comments;
-      setState(() {
-        cmts.forEach((c) {
-          addToComments(c);
+    if (mounted) {
+      widget.submission.refreshComments().then((x) {
+        var cmts = widget.submission.comments.comments;
+        setState(() {
+          cmts.forEach((c) {
+            addToComments(c);
+          });
         });
       });
-    });
+    }
   }
 
   addToComments(comment, {index, depth}) {
     if (comment == null) return;
-    CommentAndDepth commentAndDepth =
-        CommentAndDepth(comment: comment, visible: true, childrenCollapsed: false);
+    CommentAndDepth commentAndDepth = CommentAndDepth(
+        comment: comment, visible: true, childrenCollapsed: false);
     if (depth != null) {
       commentAndDepth.depth = depth;
     } else if (comment is Dart.Comment) {
       commentAndDepth.depth = comment.depth;
     } else if (comment is Dart.MoreComments) {
-      var parent = _comments.firstWhere((x) => x.comment.fullname == comment.parentId, orElse: () {});
-      commentAndDepth.depth = parent?.depth != null ? parent.depth+1 : 0;
+      var parent = _comments.firstWhere(
+          (x) => x.comment.fullname == comment.parentId,
+          orElse: () {});
+      commentAndDepth.depth = parent?.depth != null ? parent.depth + 1 : 0;
     }
 
     if (index != null) {
@@ -138,8 +142,11 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   return InkWell(
                     onTap: () {
                       setState(() {
-                        toggleVisibilityChildren(commentAndDepth.comment.fullname, commentAndDepth.childrenCollapsed);
-                        commentAndDepth.childrenCollapsed = !commentAndDepth.childrenCollapsed;
+                        toggleVisibilityChildren(
+                            commentAndDepth.comment.fullname,
+                            commentAndDepth.childrenCollapsed);
+                        commentAndDepth.childrenCollapsed =
+                            !commentAndDepth.childrenCollapsed;
                       });
                     },
                     child: Visibility(
