@@ -25,12 +25,16 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
   addToComments(comment, {index, depth}) {
     if (comment == null) return;
     CommentAndDepth commentAndDepth =
-        CommentAndDepth(comment: comment, visible: true);
+        CommentAndDepth(comment: comment, visible: true, childrenCollapsed: false);
     if (depth != null) {
       commentAndDepth.depth = depth;
     } else if (comment is Dart.Comment) {
       commentAndDepth.depth = comment.depth;
+    } else if (comment is Dart.MoreComments) {
+      var parent = _comments.firstWhere((x) => x.comment.fullname == comment.parentId, orElse: () {});
+      commentAndDepth.depth = parent?.depth != null ? parent.depth+1 : 0;
     }
+
     if (index != null) {
       _comments.insert(index, commentAndDepth);
     } else {
@@ -42,14 +46,13 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
     });
   }
 
-  collapseChildren(index, depth) {
-    var sublist = _comments.sublist(index + 1);
-    var endIndex =
-        sublist.indexWhere((x) => x.depth != null && x.depth <= depth);
-    setState(() {
-      sublist.sublist(0, endIndex).forEach((x) {
-        x.visible = !x.visible;
-      });
+  toggleVisibilityChildren(id, visibility) {
+    var children = _comments.where((c) => c.comment.parentId == id).toList();
+    if (children == null || children.length == 0) return;
+    children.forEach((c) {
+      c.visible = visibility;
+      c.childrenCollapsed = !visibility;
+      toggleVisibilityChildren(c.comment.fullname, visibility);
     });
   }
 
@@ -109,24 +112,20 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                     );
                   } else {
                     return Visibility(
-                      visible: parent.visible,
+                      visible: commentAndDepth.visible,
                       child: MoreCommentsView(
                           parentId: parent.comment.fullname,
-                          depth: parent.depth,
+                          depth: parent.depth + 1,
                           onLoadTap: (String parentId) {
                             var index = _comments.indexWhere((x) =>
                                 x.comment.parentId == parentId &&
                                 x.comment is Dart.MoreComments);
-                            var parentDepth = _comments
-                                .firstWhere(
-                                    (x) => x.comment.fullname == parentId)
-                                .depth;
                             _comments[index].comment.comments().then((x) {
                               _comments.removeAt(index);
                               setState(() {
                                 x.forEach((c) {
                                   addToComments(c,
-                                      index: index, depth: parentDepth+1);
+                                      index: index, depth: c.depth);
                                   index++;
                                 });
                               });
@@ -138,7 +137,10 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                 } else {
                   return InkWell(
                     onTap: () {
-                      collapseChildren(index, commentAndDepth.depth);
+                      setState(() {
+                        toggleVisibilityChildren(commentAndDepth.comment.fullname, commentAndDepth.childrenCollapsed);
+                        commentAndDepth.childrenCollapsed = !commentAndDepth.childrenCollapsed;
+                      });
                     },
                     child: Visibility(
                       child: CommentView(
