@@ -12,8 +12,10 @@ class SubmissionBodyState extends State<SubmissionBody> {
         if (gifVariant != null) {
           imageUrl = gifVariant.source.url.toString();
         }
-      } else {
+      } else if (widget.submission.preview.length > 0) {
         imageUrl = widget.submission.preview[0].source.url.toString();
+      } else {
+        imageUrl = widget.submission.url.toString();
       }
 
       imageUrl = imageUrl.replaceAll('amp;', '');

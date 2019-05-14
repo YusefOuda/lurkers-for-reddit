@@ -71,6 +71,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
           children: <Widget>[
             Flexible(
               child: ListView.builder(
+                physics: ClampingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _comments.length,
                 itemBuilder: (context, index) {
