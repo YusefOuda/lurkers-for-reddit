@@ -6,7 +6,11 @@ import 'package:transparent_image/transparent_image.dart';
 class _SubmissionViewState extends State<SubmissionView> {
   @override
   Widget build(BuildContext context) {
-    var thumbnailUri = Uri.tryParse(widget.submission.thumbnail.toString());
+    var preview = widget.submission.preview;
+    Uri thumbnailUri;
+    if (preview != null && preview.length > 0) {
+      thumbnailUri = widget.submission.preview[0].source.url;
+    }
     bool showThumbnail =
         thumbnailUri != null && thumbnailUri.scheme.startsWith('http');
     return IntrinsicHeight(
@@ -37,7 +41,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         height: 70.0,
                         width: 50.0,
                         placeholder: kTransparentImage,
-                        image: widget.submission.thumbnail.toString(),
+                        image: thumbnailUri.toString(),
                         fit: BoxFit.cover,
                       ),
                       replacement: Container(
