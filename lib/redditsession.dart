@@ -26,7 +26,9 @@ class RedditSession {
     var deviceId = androidInfo.androidId;
     if (userCredsString == null) {
       reddit = await Reddit.createUntrustedReadOnlyInstance(
-          clientId: _clientId, userAgent: _userAgent, deviceId: "$deviceId$deviceId");
+          clientId: _clientId,
+          userAgent: _userAgent,
+          deviceId: "$deviceId$deviceId");
     } else {
       var creds = Credentials.fromJson(userCredsString).toJson();
       reddit = await Reddit.restoreAuthenticatedInstance(creds,
@@ -68,16 +70,15 @@ class RedditSession {
 
   Future<List<Subreddit>> getSubreddits() async {
     List<Subreddit> subs = List<Subreddit>();
-    await for (final sub in reddit.user.subreddits()) subs.add(sub);
+    await for (final sub in reddit.user.subreddits(limit: 99999)) subs.add(sub);
     return subs;
   }
 
   Future<List<String>> getSubredditsDisplayNames() async {
     List<String> subs = List<String>();
-    if (user != null)
-      await for (final sub in reddit.user.subreddits())
+    if (user != null) {
+      await for (final sub in reddit.user.subreddits(limit: 99999))
         subs.add(sub.displayName);
-    else {
     }
     subs.sort((a, b) => compareIgnoreCase(a, b));
     subs.insert(0, "popular");
