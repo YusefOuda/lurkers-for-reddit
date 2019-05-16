@@ -1,5 +1,6 @@
 import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as prefix0;
 import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_view.dart';
 
@@ -11,6 +12,7 @@ class SubmissionListState extends State<SubmissionList> {
   String _sub;
   String _after = '';
   String _sort = '';
+  bool _loading = false;
 
   @override
   void initState() {
@@ -32,45 +34,73 @@ class SubmissionListState extends State<SubmissionList> {
     }
   }
 
-  void getMoreSubmissions ({limit = '20', sort = 'hot', sub = 'frontpage', after = ''}) async {
+  void getMoreSubmissions(
+      {limit = '20', sort = 'hot', sub = 'frontpage', after = ''}) async {
     var params = <String, String>{};
     params['limit'] = limit;
     params['after'] = after;
     var subString = sub == "frontpage" ? "" : "/r/$sub";
+    _loading = true;
     redditSession.reddit.get("$subString/$sort", params: params).then((result) {
+      var x = List<Submission>.from(result['listing']);
+      x.removeWhere((s) => s.over18);
       setState(() {
-        _submissions.addAll(result['listing']?.cast<Submission>());
+        _submissions.addAll(x);
       });
       _after = result['after'];
+      _loading = false;
     });
-
   }
 
   void newSubSelected(sub) {
     _sub = sub;
-    _submissions.clear();
+    setState(() {
+      _submissions.clear();
+    });
     _after = '';
     getMoreSubmissions(sub: _sub, after: _after, sort: _sort);
   }
 
   void newSortSelected(sort) {
     _sort = sort;
-    _submissions.clear();
+    setState(() {
+      _submissions.clear();
+    });
     _after = '';
     getMoreSubmissions(sub: _sub, after: _after, sort: _sort);
   }
 
+  Future<Null> _handleRefresh() async {
+    setState(() {
+      _submissions.clear();
+    });
+    _after = '';
+    getMoreSubmissions(sub: _sub, after: _after, sort: _sort);
+
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      controller: controller,
-      itemCount: _submissions.length,
-      itemBuilder: (context, index) {
-        final post = _submissions[index];
-        return SubmissionView(
-          submission: post,
-        );
-      },
+    return RefreshIndicator(
+      onRefresh: _handleRefresh,
+      child: prefix0.Visibility(
+        visible: !_loading,
+        replacement: Center(
+          child: CircularProgressIndicator(),
+        ),
+        child: ListView.builder(
+          physics: AlwaysScrollableScrollPhysics(),
+          controller: controller,
+          itemCount: _submissions.length,
+          itemBuilder: (context, index) {
+            final post = _submissions[index];
+            return SubmissionView(
+              submission: post,
+            );
+          },
+        ),
+      ),
     );
   }
 }

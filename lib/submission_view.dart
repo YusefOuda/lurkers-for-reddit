@@ -6,13 +6,9 @@ import 'package:transparent_image/transparent_image.dart';
 class _SubmissionViewState extends State<SubmissionView> {
   @override
   Widget build(BuildContext context) {
-    var preview = widget.submission.preview;
-    Uri thumbnailUri;
-    if (preview != null && preview.length > 0) {
-      thumbnailUri = widget.submission.preview[0].source.url;
-    }
+    var thumb = widget.submission.thumbnail;
     bool showThumbnail =
-        thumbnailUri != null && thumbnailUri.scheme.startsWith('http');
+        thumb != null && thumb.scheme.startsWith('http');
     return IntrinsicHeight(
       child: InkWell(
         onTap: () {
@@ -41,7 +37,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         height: 70.0,
                         width: 50.0,
                         placeholder: kTransparentImage,
-                        image: thumbnailUri.toString(),
+                        image: thumb.toString(),
                         fit: BoxFit.cover,
                       ),
                       replacement: Container(

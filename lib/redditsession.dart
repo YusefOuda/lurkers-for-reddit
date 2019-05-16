@@ -78,9 +78,9 @@ class RedditSession {
       await for (final sub in reddit.user.subreddits())
         subs.add(sub.displayName);
     else {
-      subs.addAll(["gaming"]);
     }
     subs.sort((a, b) => compareIgnoreCase(a, b));
+    subs.insert(0, "popular");
     subs.insert(0, "all");
     subs.insert(0, "frontpage");
     return subs;
