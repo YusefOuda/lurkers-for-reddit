@@ -41,7 +41,10 @@ class SubmissionBodyState extends State<SubmissionBody> {
             onTap: () {
               _handleLink(postUrl);
             },
-            child: Image.network(url, fit: BoxFit.cover),
+            child: Image.network(
+              url,
+              fit: BoxFit.cover,
+            ),
           ),
           replacement: Container(),
         ),

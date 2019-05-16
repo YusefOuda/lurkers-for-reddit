@@ -4,6 +4,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lurkers_for_reddit/comment_and_depth.dart';
 import 'package:lurkers_for_reddit/submission_body.dart';
 import 'package:html_unescape/html_unescape.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'comment_view.dart';
 import 'more_comments_view.dart';
@@ -177,6 +178,9 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   padding: EdgeInsets.all(10.0),
                   child: MarkdownBody(
                     data: unescape.convert(widget.submission.selftext ?? ""),
+                    onTapLink: (url) {
+                      _handleLink(url);
+                    },
                   ),
                 ),
                 Divider(),
@@ -189,6 +193,14 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
         }
       },
     );
+  }
+
+  _handleLink(url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw "cant open link";
+    }
   }
 }
 

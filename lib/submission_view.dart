@@ -35,14 +35,14 @@ class _SubmissionViewState extends State<SubmissionView> {
                       visible: showThumbnail,
                       child: FadeInImage.memoryNetwork(
                         height: 70.0,
-                        width: 50.0,
+                        width: 70.0,
                         placeholder: kTransparentImage,
                         image: thumb.toString(),
                         fit: BoxFit.cover,
                       ),
                       replacement: Container(
                         height: 70.0,
-                        width: 50.0,
+                        width: 70.0,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             image: DecorationImage(

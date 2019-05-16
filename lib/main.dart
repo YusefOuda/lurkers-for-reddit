@@ -71,7 +71,10 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Center(
                 child: Text(
                   'Lurkers for Reddit',
-                  style: Theme.of(context).textTheme.display1.copyWith(fontWeight: FontWeight.bold),
+                  style: Theme.of(context)
+                      .textTheme
+                      .display1
+                      .copyWith(fontWeight: FontWeight.bold),
                 ),
               ),
               decoration: BoxDecoration(color: Theme.of(context).accentColor),
@@ -91,19 +94,19 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text('Login'),
                 onTap: () {
                   redditSession.login().then((x) {
-                        getUriLinksStream().listen((Uri uri) {
-                          final code = uri.queryParameters['code'];
-                          redditSession.onAuthCode(code).then((x) {
-                            setState(() {
-                              if (redditSession.user != null) {
-                                this._userNameText =
-                                    redditSession?.user?.displayName ?? "";
-                                this.getSubreddits();
-                              }
-                            });
-                          });
+                    getUriLinksStream().listen((Uri uri) {
+                      final code = uri.queryParameters['code'];
+                      redditSession.onAuthCode(code).then((x) {
+                        setState(() {
+                          if (redditSession.user != null) {
+                            this._userNameText =
+                                redditSession?.user?.displayName ?? "";
+                            this.getSubreddits();
+                          }
                         });
                       });
+                    });
+                  });
                 },
               ),
             ),
@@ -113,11 +116,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: Text('Logout'),
                 onTap: () {
                   redditSession.logout().then((x) {
-                        setState(() {
-                          this._userNameText = "";
-                          this.getSubreddits();
-                        });
-                      });
+                    setState(() {
+                      this._userNameText = "";
+                      this.getSubreddits();
+                    });
+                  });
                 },
               ),
             ),
@@ -127,6 +130,7 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: _subreddits.length > 0
             ? DropdownButton<String>(
+                isExpanded: true,
                 value: _currentSub,
                 onChanged: (String newValue) {
                   print(newValue);
@@ -138,7 +142,20 @@ class _MyHomePageState extends State<MyHomePage> {
                 items: _subreddits.map<DropdownMenuItem<String>>(
                   (String subName) {
                     return DropdownMenuItem<String>(
-                        child: Text(subName), value: subName);
+                      value: subName,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Expanded(child: Text(subName),),
+                          IconButton(
+                            icon: Icon(Icons.star_border),
+                            onPressed: () {
+                              _handleSubFavorite(subName);
+                            },
+                          ),
+                        ],
+                      ),
+                    );
                   },
                 ).toList(),
               )
@@ -162,5 +179,9 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: SubmissionList(key: globalKey, sub: _currentSub),
     );
+  }
+
+  _handleSubFavorite(subName) {
+    print("favorited " + subName);
   }
 }
