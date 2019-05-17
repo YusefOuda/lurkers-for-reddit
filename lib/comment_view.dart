@@ -21,7 +21,7 @@ class _CommentViewState extends State<CommentView> {
         ),
         child: Container(
           decoration: BoxDecoration(
-              border: Border(left: BorderSide(color: Colors.black))),
+              border: Border(left: BorderSide(color: _getBorderSideColor()))),
           padding: EdgeInsets.only(left: 8.0),
           child: Column(
             children: <Widget>[
@@ -61,6 +61,11 @@ class _CommentViewState extends State<CommentView> {
         ),
       ),
     );
+  }
+
+  _getBorderSideColor() {
+    var colors = [Colors.white, Colors.lightBlue, Colors.lightGreen, Colors.orange, Colors.pink, Colors.purple, Colors.yellow, Colors.amber, Colors.cyan, Colors.red];
+    return colors[widget.depth % colors.length];
   }
 
   _handleLink(url) async {

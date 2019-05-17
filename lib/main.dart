@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
       title: 'Lurkers for Reddit',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        brightness: Brightness.dark,
       ),
       home: MyHomePage(),
     );
