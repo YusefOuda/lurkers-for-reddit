@@ -53,14 +53,15 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     getSubreddits();
-    _getFavorites();
   }
 
-  void getSubreddits() {
+  void getSubreddits() async {
+    await _getFavorites();
     _subreddits.clear();
     redditSession.getSubredditsDisplayNames().then((subs) {
       setState(() {
         _subreddits.addAll(subs);
+        _sortSubreddits();
       });
     });
   }
@@ -245,6 +246,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   _sortSubreddits() {
     _subreddits.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _favorites.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
     _subreddits.insert(0, 'popular');
     var index = _subreddits.lastIndexWhere((x) => x == 'popular');
     _subreddits.removeAt(index);
@@ -269,7 +271,6 @@ class _MyHomePageState extends State<MyHomePage> {
     if (favs != null)
       _favorites = favs;
     _favorites.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
-    _sortSubreddits();
   }
 
   _saveFavorites() async {
