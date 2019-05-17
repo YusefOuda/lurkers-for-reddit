@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'redditsession.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:lurkers_for_reddit/submission_list.dart';
+import 'package:toast/toast.dart';
 
 var redditSession = RedditSession.instance;
 
@@ -35,8 +37,10 @@ GlobalKey<SubmissionListState> globalKey = GlobalKey();
 class _MyHomePageState extends State<MyHomePage> {
   String _userNameText = redditSession?.user?.displayName ?? "";
   List<String> _subreddits = List<String>();
+  List<String> _favorites = List<String>();
   String _currentSub = 'frontpage';
   String _currentSort = 'hot';
+  bool _viewingUserEnteredSub = false;
   List<String> sorts = [
     "hot",
     "new",
@@ -49,6 +53,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     getSubreddits();
+    _getFavorites();
   }
 
   void getSubreddits() {
@@ -63,6 +68,44 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.search),
+        mini: false,
+        onPressed: () {
+          showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(title: FormField(
+                  builder: (FormFieldState state) {
+                    return Column(
+                      children: <Widget>[
+                        Text("Enter a subreddit..."),
+                        TextField(
+                          autofocus: true,
+                          onSubmitted: (value) {
+                            setState(() {
+                              if (_viewingUserEnteredSub) {
+                                _subreddits.removeAt(0);
+                              }
+                              if (!_subreddits.contains(value)) {
+                                _viewingUserEnteredSub = true;
+                                _subreddits.insert(0, value);
+                              }
+
+                              Navigator.pop(context);
+                              _currentSub = value;
+                              globalKey.currentState
+                                  .newSubSelected(_currentSub);
+                            });
+                          },
+                        )
+                      ],
+                    );
+                  },
+                ));
+              });
+        },
+      ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -133,7 +176,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 isExpanded: true,
                 value: _currentSub,
                 onChanged: (String newValue) {
-                  print(newValue);
+                  if (newValue == _currentSub) return;
+                  if (_viewingUserEnteredSub) {
+                    _subreddits.removeAt(0);
+                  }
+                  _viewingUserEnteredSub = false;
                   setState(() {
                     _currentSub = newValue;
                     globalKey.currentState.newSubSelected(_currentSub);
@@ -146,11 +193,26 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
-                          Expanded(child: Text(subName),),
+                          Expanded(
+                            child: Text(subName),
+                          ),
                           IconButton(
-                            icon: Icon(Icons.star_border),
+                            icon: Visibility(
+                              visible: !_favorites.contains(subName),
+                              child: Icon(Icons.star_border),
+                              replacement: Icon(Icons.star),
+                            ),
                             onPressed: () {
-                              _handleSubFavorite(subName);
+                              var didFavorite = _handleSubFavorite(subName);
+                              _sortSubreddits();
+                              //Navigator.pop(context);
+                              Toast.show(
+                                  didFavorite
+                                      ? "Added $subName to favorites"
+                                      : "Removed $subName from favorites",
+                                  context,
+                                  duration: Toast.LENGTH_SHORT,
+                                  gravity: Toast.CENTER);
                             },
                           ),
                         ],
@@ -181,7 +243,52 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  _sortSubreddits() {
+    _subreddits.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _subreddits.insert(0, 'popular');
+    var index = _subreddits.lastIndexWhere((x) => x == 'popular');
+    _subreddits.removeAt(index);
+    _subreddits.insert(0, 'all');
+    index = _subreddits.lastIndexWhere((x) => x == 'all');
+    _subreddits.removeAt(index);
+    _subreddits.insert(0, 'frontpage');
+    index = _subreddits.lastIndexWhere((x) => x == 'frontpage');
+    _subreddits.removeAt(index);
+    _subreddits.forEach((s) {
+      if (_favorites.contains(s)) {
+        _subreddits.insert(0, s);
+        var index = _subreddits.lastIndexWhere((x) => x == s);
+        _subreddits.removeAt(index);
+      }
+    });
+  }
+
+  _getFavorites() async {
+    var sp = await SharedPreferences.getInstance();
+    var favs = sp.getStringList('favorite_subreddits');
+    if (favs != null)
+      _favorites = favs;
+    _favorites.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _sortSubreddits();
+  }
+
+  _saveFavorites() async {
+    var sp = await SharedPreferences.getInstance();
+    sp.setStringList('favorite_subreddits', _favorites);
+  }
+
   _handleSubFavorite(subName) {
-    print("favorited " + subName);
+    var didFavorite = false;
+    setState(() {
+      if (_favorites.contains(subName)) {
+        _favorites.remove(subName);
+      } else {
+        _favorites.add(subName);
+        didFavorite = true;
+      }
+    });
+    _favorites.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    _saveFavorites();
+    return didFavorite;
   }
 }

@@ -53,14 +53,16 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
     });
   }
 
-  toggleVisibilityChildren(id, visibility) {
+  toggleVisibilityChildren(id, visibility, numCollapsed) {
     var children = _comments.where((c) => c.comment.parentId == id).toList();
-    if (children == null || children.length == 0) return;
+    if (children == null || children.length == 0) return numCollapsed;
     children.forEach((c) {
+      numCollapsed = toggleVisibilityChildren(c.comment.fullname, visibility, numCollapsed);
       c.visible = visibility;
       c.childrenCollapsed = !visibility;
-      toggleVisibilityChildren(c.comment.fullname, visibility);
+      numCollapsed++;
     });
+    return numCollapsed;
   }
 
   @override
@@ -133,17 +135,22 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                     return InkWell(
                       onTap: () {
                         setState(() {
-                          toggleVisibilityChildren(
+                          var numCollapsed = toggleVisibilityChildren(
                               commentAndDepth.comment.fullname,
-                              commentAndDepth.childrenCollapsed);
-                          commentAndDepth.childrenCollapsed =
-                              !commentAndDepth.childrenCollapsed;
+                              commentAndDepth.childrenCollapsed, 0);
+                              commentAndDepth.numChildren = numCollapsed;
+                          if (numCollapsed > 0) {
+                            commentAndDepth.childrenCollapsed =
+                                !commentAndDepth.childrenCollapsed;
+                          }
                         });
                       },
                       child: Visibility(
                         child: CommentView(
                             comment: commentAndDepth.comment,
-                            depth: commentAndDepth.depth),
+                            depth: commentAndDepth.depth,
+                            childrenCollapsed:
+                                commentAndDepth.childrenCollapsed, numChildren: commentAndDepth.numChildren),
                         visible: commentAndDepth.visible,
                         replacement: Container(),
                       ),

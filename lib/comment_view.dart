@@ -35,7 +35,13 @@ class _CommentViewState extends State<CommentView> {
                   Text("${widget.comment.score} points"),
                   Text("  • "),
                   Text(
-                      "${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}")
+                      "${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}"),
+                      Spacer(),
+                  Visibility(
+                    visible: widget.childrenCollapsed,
+                    child: Text("+" + widget.numChildren.toString(), style: TextStyle(backgroundColor: Colors.greenAccent), ),
+                    replacement: Container(),
+                  ),
                 ],
               ),
               Row(
@@ -67,10 +73,13 @@ class _CommentViewState extends State<CommentView> {
 }
 
 class CommentView extends StatefulWidget {
-  CommentView({Key key, this.comment, this.depth}) : super(key: key);
+  CommentView({Key key, this.comment, this.depth, this.childrenCollapsed, this.numChildren})
+      : super(key: key);
 
   final Dart.Comment comment;
   final int depth;
+  final bool childrenCollapsed;
+  final int numChildren;
 
   @override
   _CommentViewState createState() => _CommentViewState();
