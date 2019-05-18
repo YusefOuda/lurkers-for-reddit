@@ -66,13 +66,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         replacement: Container(
                           height: 70.0,
                           width: 70.0,
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              image: DecorationImage(
-                                image: AssetImage('assets/placeholder.png'),
-                              ),
-                            ),
-                          ),
+                          color: Colors.blueGrey.withOpacity(0.3),
                         ),
                       ),
                     ),

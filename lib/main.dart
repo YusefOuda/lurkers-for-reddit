@@ -44,6 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
   String _currentSort = 'hot';
   bool _bottomSheetOpen = false;
   Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
+  Color _appBarColor;
   List<String> sorts = [
     "hot",
     "new",
@@ -56,6 +57,20 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     getSubreddits();
+    _appBarColor = Colors.black12;
+  }
+
+  Color _getSubColor(sub) {
+    String subColorHex;
+    if (sub.runtimeType != Dart.Subreddit) return Colors.black12;
+
+    if (sub.data['primary_color'] != null) {
+      subColorHex = sub.data['primary_color'];
+      subColorHex = subColorHex.replaceAll('#', '');
+      var subColorInt = int.parse("0xFF$subColorHex");
+      return Color(subColorInt).withOpacity(1.0);
+    }
+    return Colors.black12;
   }
 
   _getReorderableSubs() {
@@ -63,24 +78,17 @@ class _MyHomePageState extends State<MyHomePage> {
     _subreddits.forEach((s) {
       Dart.Subreddit sub;
       String iconImg;
-      String subColorHex;
-      Color subColor;
+      Color subColor = _getSubColor(s);
       if (s.runtimeType == Dart.Subreddit) {
         sub = s as Dart.Subreddit;
         if (sub.data['icon_img'] != null) {
           iconImg = sub.data['icon_img'];
         }
-        if (sub.data['primary_color'] != null) {
-          subColorHex = sub.data['primary_color'];
-          subColorHex = subColorHex.replaceAll('#', '');
-          var subColorInt = int.parse("0xFF$subColorHex");
-          subColor = Color(subColorInt).withOpacity(1.0);
-        }
       }
       var widget = Container(
         constraints: BoxConstraints(maxHeight: 50.0),
         decoration: BoxDecoration(
-          color: subColor != null ? subColor.withOpacity(0.3) : Colors.black,
+          color: subColor != null ? subColor.withOpacity(0.5) : Colors.black,
           border: Border(
             bottom: BorderSide(color: Colors.white),
           ),
@@ -90,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () {
             setState(() {
               _currentSub = sub != null ? sub.displayName : s;
+              _appBarColor = _getSubColor(sub).withOpacity(0.5);
             });
             globalKey.currentState.newSubSelected(_currentSub);
             _sheetController.close();
@@ -339,6 +348,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       ),
       appBar: AppBar(
+        backgroundColor: _appBarColor,
         title: InkWell(
           onTap: () {
             if (!_bottomSheetOpen) {
