@@ -69,16 +69,20 @@ class RedditSession {
   }
 
   Future<List<dynamic>> getSubreddits() async {
+    if (user == null) {
+      var subs = List<dynamic>();
+      subs.addAll(['popular', 'all', 'frontpage']);
+      return subs;
+    }
+
     List<dynamic> subs = List<dynamic>();
     List<String> subNameList;
     var sp = await SharedPreferences.getInstance();
     subNameList = sp.getStringList('subreddits');
     bool noSavedSubs = subNameList == null;
 
-    if (user != null) {
-      await for (final sub in reddit.user.subreddits(limit: 99999)) {
-        subs.add(sub);
-      }
+    await for (final sub in reddit.user.subreddits(limit: 99999)) {
+      subs.add(sub);
     }
 
     subs.insert(0, 'popular');
@@ -95,7 +99,8 @@ class RedditSession {
     } else {
       List<dynamic> tempSubs = List<dynamic>();
       subNameList.forEach((s) {
-        var sub = subs.firstWhere((x) => (x.runtimeType == Subreddit ? x.displayName : x) == s);
+        var sub = subs.firstWhere(
+            (x) => (x.runtimeType == Subreddit ? x.displayName : x) == s);
         if (sub != null) {
           subs.remove(sub);
           tempSubs.add(sub);
@@ -108,7 +113,7 @@ class RedditSession {
       subs = tempSubs;
     }
 
-    if (user != null) saveSubreddits(subNameList);
+    saveSubreddits(subNameList);
     return subs;
   }
 
