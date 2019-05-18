@@ -91,10 +91,14 @@ class RedditSession {
 
     if (noSavedSubs) {
       subNameList = List<String>();
-      subs.sort((a, b) =>
-          a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase()));
+      subs.sort((a, b) {
+        String aName = a.runtimeType == Subreddit ? a.displayName.toLowerCase() : a.toLowerCase();
+        String bName = b.runtimeType == Subreddit ? b.displayName.toLowerCase() : b.toLowerCase();
+        return aName.compareTo(bName);
+      });
       subs.forEach((s) {
-        subNameList.add(s.displayName);
+        var name = s.runtimeType == Subreddit ? s.displayName : s;
+        subNameList.add(name);
       });
     } else {
       List<dynamic> tempSubs = List<dynamic>();
