@@ -89,15 +89,16 @@ class RedditSession {
           subs.add(sub.displayName);
       }
     }
+
+    if (newSubs)
+      subs.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+
     if (!subs.contains('popular'))
       subs.insert(0, "popular");
     if (!subs.contains('all'))
       subs.insert(0, "all");
     if (!subs.contains('frontpage'))
       subs.insert(0, "frontpage");
-
-    if (newSubs)
-      subs.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     if (user != null)
       saveSubreddits(subs);
