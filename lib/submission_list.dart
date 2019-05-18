@@ -41,7 +41,6 @@ class SubmissionListState extends State<SubmissionList> {
     params['after'] = after;
     var subString = sub == "frontpage" ? "" : "/r/$sub";
     _loading = true;
-    try {
     redditSession.reddit.get("$subString/$sort", params: params).then((result) {
       var x = List<Submission>.from(result['listing']);
       x.removeWhere((s) => s.over18);
@@ -50,10 +49,16 @@ class SubmissionListState extends State<SubmissionList> {
       });
       _after = result['after'];
       _loading = false;
-    });
-    } catch(error) {
+    }).catchError((e) {
       print("couldn't get submissions");
-    }
+      setState(() {
+        _loading = false;
+        _submissions.clear();
+      });
+      Scaffold.of(context).showSnackBar(new SnackBar(
+        content: new Text("Could not load submissions"),
+      ));
+    });
   }
 
   void newSubSelected(sub) {
@@ -86,7 +91,7 @@ class SubmissionListState extends State<SubmissionList> {
 
   _onHide(sub) {
     setState(() {
-     _submissions.remove(sub);
+      _submissions.remove(sub);
     });
   }
 
