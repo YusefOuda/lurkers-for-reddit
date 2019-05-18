@@ -122,7 +122,8 @@ class _MyHomePageState extends State<MyHomePage> {
                     if (newIndex > oldIndex) newIndex--;
                     _subreddits.insert(newIndex, sub);
                   });
-                  redditSession.saveSubreddits(_subreddits);
+                  if (redditSession.user != null)
+                    redditSession.saveSubreddits(_subreddits);
                 },
                 children: _getReorderableSubs(),
               ),

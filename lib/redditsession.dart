@@ -75,8 +75,9 @@ class RedditSession {
   }
 
   Future<List<String>> getSubredditsDisplayNames() async {
+    List<String> subs;
     var sp = await SharedPreferences.getInstance();
-    var subs = sp.getStringList('subreddits');
+    subs = sp.getStringList('subreddits');
     bool newSubs = false;
     if (subs == null) {
       subs = List<String>();
@@ -98,7 +99,8 @@ class RedditSession {
     if (newSubs)
       subs.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
-    saveSubreddits(subs);
+    if (user != null)
+      saveSubreddits(subs);
     return subs;
   }
 
