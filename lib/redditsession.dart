@@ -75,16 +75,31 @@ class RedditSession {
   }
 
   Future<List<String>> getSubredditsDisplayNames() async {
-    List<String> subs = List<String>();
-    if (user != null) {
-      await for (final sub in reddit.user.subreddits(limit: 99999))
-        subs.add(sub.displayName);
+    var sp = await SharedPreferences.getInstance();
+    var subs = sp.getStringList('subreddits');
+    if (subs == null) {
+      subs = List<String>();
     }
-    subs.sort((a, b) => compareIgnoreCase(a, b));
-    subs.insert(0, "popular");
-    subs.insert(0, "all");
-    subs.insert(0, "frontpage");
+    if (user != null) {
+      await for (final sub in reddit.user.subreddits(limit: 99999)) {
+        if (!subs.contains(sub.displayName))
+          subs.add(sub.displayName);
+      }
+    }
+    if (!subs.contains('popular'))
+      subs.insert(0, "popular");
+    if (!subs.contains('all'))
+      subs.insert(0, "all");
+    if (!subs.contains('frontpage'))
+      subs.insert(0, "frontpage");
+
+    saveSubreddits(subs);
     return subs;
+  }
+
+  saveSubreddits(subs) async {
+    var sp = await SharedPreferences.getInstance();
+    sp.setStringList('subreddits', subs);
   }
 
   static final RedditSession instance = RedditSession._privateConstructor();
