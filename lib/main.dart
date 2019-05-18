@@ -45,6 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _bottomSheetOpen = false;
   Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
   Color _appBarColor;
+
   List<String> sorts = [
     "hot",
     "new",
@@ -202,19 +203,21 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             Divider(height: 24.0, color: Colors.white),
             Flexible(
-              child: ReorderableListView(
-                onReorder: (oldIndex, newIndex) {
-                  var sub = _subreddits[oldIndex];
-                  _sheetController.setState(() {
-                    _subreddits.removeAt(oldIndex);
-                    if (newIndex > oldIndex) newIndex--;
-                    _subreddits.insert(newIndex, sub);
-                  });
-                  if (redditSession.user != null)
-                    redditSession.saveSubreddits(_subreddits);
-                },
-                children: _getReorderableSubs(),
-              ),
+              child: _subreddits.length > 0
+                  ? ReorderableListView(
+                      onReorder: (oldIndex, newIndex) {
+                        var sub = _subreddits[oldIndex];
+                        _sheetController.setState(() {
+                          _subreddits.removeAt(oldIndex);
+                          if (newIndex > oldIndex) newIndex--;
+                          _subreddits.insert(newIndex, sub);
+                        });
+                        if (redditSession.user != null)
+                          redditSession.saveSubreddits(_subreddits);
+                      },
+                      children: _getReorderableSubs(),
+                    )
+                  : Text("Subreddits are loading..."),
             ),
           ],
         ),
@@ -233,7 +236,9 @@ class _MyHomePageState extends State<MyHomePage> {
     _subreddits.clear();
     redditSession.getSubreddits().then((subs) {
       setState(() {
-        _subreddits.addAll(subs);
+        _sheetController.setState(() {
+          _subreddits.addAll(subs);
+        });
       });
     });
   }
