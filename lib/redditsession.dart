@@ -1,5 +1,6 @@
 import "dart:async";
 import "package:draw/draw.dart";
+import 'package:lurkers_for_reddit/main.dart';
 import "package:oauth2/oauth2.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:url_launcher/url_launcher.dart";
@@ -67,46 +68,57 @@ class RedditSession {
     user = await reddit.user.me();
   }
 
-  Future<List<Subreddit>> getSubreddits() async {
-    List<Subreddit> subs = List<Subreddit>();
-    await for (final sub in reddit.user.subreddits(limit: 99999)) subs.add(sub);
-    return subs;
-  }
-
-  Future<List<String>> getSubredditsDisplayNames() async {
-    List<String> subs;
+  Future<List<dynamic>> getSubreddits() async {
+    List<dynamic> subs = List<dynamic>();
+    List<String> subNameList;
     var sp = await SharedPreferences.getInstance();
-    subs = sp.getStringList('subreddits');
-    bool newSubs = false;
-    if (subs == null) {
-      subs = List<String>();
-      newSubs = true;
-    }
+    subNameList = sp.getStringList('subreddits');
+    bool noSavedSubs = subNameList == null;
+
     if (user != null) {
       await for (final sub in reddit.user.subreddits(limit: 99999)) {
-        if (!subs.contains(sub.displayName))
-          subs.add(sub.displayName);
+        subs.add(sub);
       }
     }
 
-    if (newSubs)
-      subs.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
+    subs.insert(0, 'popular');
+    subs.insert(0, 'all');
+    subs.insert(0, 'frontpage');
 
-    if (!subs.contains('popular'))
-      subs.insert(0, "popular");
-    if (!subs.contains('all'))
-      subs.insert(0, "all");
-    if (!subs.contains('frontpage'))
-      subs.insert(0, "frontpage");
+    if (noSavedSubs) {
+      subNameList = List<String>();
+      subs.sort((a, b) =>
+          a.displayName.toLowerCase().compareTo(b.displayName.toLowerCase()));
+      subs.forEach((s) {
+        subNameList.add(s.displayName);
+      });
+    } else {
+      List<dynamic> tempSubs = List<dynamic>();
+      subNameList.forEach((s) {
+        var sub = subs.firstWhere((x) => (x.runtimeType == Subreddit ? x.displayName : x) == s);
+        if (sub != null) {
+          subs.remove(sub);
+          tempSubs.add(sub);
+        }
+      });
+      subs.forEach((s) {
+        subNameList.add(s.runtimeType == Subreddit ? s.displayName : s);
+        tempSubs.add(s);
+      });
+      subs = tempSubs;
+    }
 
-    if (user != null)
-      saveSubreddits(subs);
+    if (user != null) saveSubreddits(subNameList);
     return subs;
   }
 
   saveSubreddits(subs) async {
     var sp = await SharedPreferences.getInstance();
-    sp.setStringList('subreddits', subs);
+    var subNameList = List<String>();
+    subs.forEach((s) {
+      subNameList.add(s.runtimeType == Subreddit ? s.displayName : s);
+    });
+    sp.setStringList('subreddits', subNameList);
   }
 
   static final RedditSession instance = RedditSession._privateConstructor();

@@ -1,4 +1,6 @@
+import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/material.dart';
+import 'package:transparent_image/transparent_image.dart';
 import 'redditsession.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:lurkers_for_reddit/submission_list.dart';
@@ -37,7 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   PersistentBottomSheetController _sheetController;
   String _userNameText = redditSession?.user?.displayName ?? "";
-  List<String> _subreddits = List<String>();
+  List<dynamic> _subreddits = List<dynamic>();
   String _currentSub = 'frontpage';
   String _currentSort = 'hot';
   bool _bottomSheetOpen = false;
@@ -59,18 +61,35 @@ class _MyHomePageState extends State<MyHomePage> {
   _getReorderableSubs() {
     List<Widget> widgets = [];
     _subreddits.forEach((s) {
+      Dart.Subreddit sub;
+      String iconImg;
+      String subColorHex;
+      Color subColor;
+      if (s.runtimeType == Dart.Subreddit) {
+        sub = s as Dart.Subreddit;
+        if (sub.data['icon_img'] != null) {
+          iconImg = sub.data['icon_img'];
+        }
+        if (sub.data['primary_color'] != null) {
+          subColorHex = sub.data['primary_color'];
+          subColorHex = subColorHex.replaceAll('#', '');
+          var subColorInt = int.parse("0xFF$subColorHex");
+          subColor = Color(subColorInt).withOpacity(1.0);
+        }
+      }
       var widget = Container(
         constraints: BoxConstraints(maxHeight: 50.0),
         decoration: BoxDecoration(
+          color: subColor != null ? subColor.withOpacity(0.3) : Colors.black,
           border: Border(
             bottom: BorderSide(color: Colors.white),
           ),
         ),
-        key: Key(s),
+        key: sub != null ? Key(sub.displayName) : Key(s),
         child: InkWell(
           onTap: () {
             setState(() {
-              _currentSub = s;
+              _currentSub = sub != null ? sub.displayName : s;
             });
             globalKey.currentState.newSubSelected(_currentSub);
             _sheetController.close();
@@ -78,13 +97,42 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Padding(
             padding: EdgeInsets.all(10.0),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: <Widget>[
-                Expanded(
-                  flex: 16,
+                sub != null && iconImg != null && iconImg.startsWith('http')
+                    ? FadeInImage.memoryNetwork(
+                        height: 30.0,
+                        width: 30.0,
+                        placeholder: kTransparentImage,
+                        image: iconImg,
+                        fit: BoxFit.cover,
+                      )
+                    : Container(
+                        height: 30.0,
+                        width: 30.0,
+                        color: Colors.blueGrey,
+                      ),
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      left: 10.0,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        sub != null ? sub.displayName : s,
+                      ),
+                    ),
+                  ),
+                ),
+                Flexible(
+                  flex: 2,
                   child: Align(
-                    alignment: Alignment.center,
-                    child: Text(s),
+                    alignment: Alignment.centerRight,
+                    child: Text(sub != null
+                        ? toSubCountText(sub.data['subscribers'])
+                        : ''),
                   ),
                 ),
                 Flexible(
@@ -102,6 +150,19 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     return widgets;
+  }
+
+  toSubCountText(subscribers) {
+    if (subscribers < 1000) {
+      return subscribers.toString();
+    } else if (subscribers < 10000) {
+      return (subscribers / 1000).toStringAsFixed(1) + 'k';
+    } else if (subscribers < 1000000) {
+      return (subscribers / 10000).toStringAsFixed(1) + 'k';
+    } else if (subscribers < 100000000) {
+      return (subscribers / 1000000).toStringAsFixed(1) + 'm';
+    }
+    return subscribers.toString();
   }
 
   _bottomSheet() {
@@ -131,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Divider(height: 24.0, color: Colors.white),
-            Expanded(
+            Flexible(
               child: ReorderableListView(
                 onReorder: (oldIndex, newIndex) {
                   var sub = _subreddits[oldIndex];
@@ -161,7 +222,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void getSubreddits() async {
     _subreddits.clear();
-    redditSession.getSubredditsDisplayNames().then((subs) {
+    redditSession.getSubreddits().then((subs) {
       setState(() {
         _subreddits.addAll(subs);
       });
