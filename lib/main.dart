@@ -60,29 +60,42 @@ class _MyHomePageState extends State<MyHomePage> {
     List<Widget> widgets = [];
     _subreddits.forEach((s) {
       var widget = Container(
+        constraints: BoxConstraints(maxHeight: 50.0),
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(color: Colors.white),
           ),
         ),
         key: Key(s),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(10.0),
-              child: InkWell(
-                child: Text(s),
-                onTap: () {
-                  setState(() {
-                    _currentSub = s;
-                  });
-                  globalKey.currentState.newSubSelected(_currentSub);
-                  _sheetController.close();
-                },
+        child: Padding(
+          padding: EdgeInsets.all(10.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Expanded(
+                flex: 16,
+                child: Align(
+                  alignment: Alignment.center,
+                  child: InkWell(
+                    child: Text(s),
+                    onTap: () {
+                      setState(() {
+                        _currentSub = s;
+                      });
+                      globalKey.currentState.newSubSelected(_currentSub);
+                      _sheetController.close();
+                    },
+                  ),
+                ),
               ),
-            ),
-          ],
+              Flexible(
+                child: Align(
+                  alignment: Alignment.centerRight,
+                  child: Icon(Icons.drag_handle),
+                ),
+              ),
+            ],
+          ),
         ),
       );
       widgets.add(widget);
