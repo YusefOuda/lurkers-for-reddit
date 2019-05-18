@@ -12,7 +12,11 @@ class _SubmissionViewState extends State<SubmissionView> {
   Widget build(BuildContext context) {
     var thumb = widget.submission.thumbnail;
     bool showThumbnail = thumb != null && thumb.scheme.startsWith('http');
-    if (widget.submission.saved) _saveIcon = Icon(Icons.star);
+    if (widget.submission.saved) {
+      _saveIcon = Icon(Icons.star);
+    } else {
+      _saveIcon = Icon(Icons.star_border);
+    }
     return IntrinsicHeight(
       child: InkWell(
         onTap: () {
@@ -122,10 +126,14 @@ class _SubmissionViewState extends State<SubmissionView> {
                             IconButton(
                                 icon: _saveIcon,
                                 onPressed: () {
-                                  if (widget.submission.saved) {
+                                  if (!widget.submission.saved) {
                                     widget.submission.save().then((x) {
-                                      setState(() {
-                                        _saveIcon = Icon(Icons.star);
+                                      widget.submission.refresh().then((y) {
+                                        setState(() {
+                                          _saveIcon = Icon(Icons.star);
+                                        });
+                                        Scaffold.of(context)
+                                            .hideCurrentSnackBar();
                                         Scaffold.of(context)
                                             .showSnackBar(new SnackBar(
                                           content: new Text(
@@ -135,8 +143,12 @@ class _SubmissionViewState extends State<SubmissionView> {
                                     });
                                   } else {
                                     widget.submission.unsave().then((x) {
-                                      setState(() {
-                                        _saveIcon = Icon(Icons.star_border);
+                                      widget.submission.refresh().then((y) {
+                                        setState(() {
+                                          _saveIcon = Icon(Icons.star_border);
+                                        });
+                                        Scaffold.of(context)
+                                            .hideCurrentSnackBar();
                                         Scaffold.of(context)
                                             .showSnackBar(new SnackBar(
                                           content: new Text(
