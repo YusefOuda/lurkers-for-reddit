@@ -67,34 +67,34 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
         key: Key(s),
-        child: Padding(
-          padding: EdgeInsets.all(10.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                flex: 16,
-                child: Align(
-                  alignment: Alignment.center,
-                  child: InkWell(
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              _currentSub = s;
+            });
+            globalKey.currentState.newSubSelected(_currentSub);
+            _sheetController.close();
+          },
+          child: Padding(
+            padding: EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Expanded(
+                  flex: 16,
+                  child: Align(
+                    alignment: Alignment.center,
                     child: Text(s),
-                    onTap: () {
-                      setState(() {
-                        _currentSub = s;
-                      });
-                      globalKey.currentState.newSubSelected(_currentSub);
-                      _sheetController.close();
-                    },
                   ),
                 ),
-              ),
-              Flexible(
-                child: Align(
-                  alignment: Alignment.centerRight,
-                  child: Icon(Icons.drag_handle),
+                Flexible(
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Icon(Icons.drag_handle),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );
@@ -216,7 +216,11 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () {
             _sheetController = _bottomSheet();
           },
-          child: _currentSub != null ? Text(_currentSub) : Text('Lurkr'),
+          child: Row(
+            children: <Widget>[
+              _currentSub != null ? Text(_currentSub) : Text('Lurkr'),
+            ],
+          ),
         ),
         actions: <Widget>[
           DropdownButton<String>(
