@@ -112,6 +112,7 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
+            Divider(height: 24.0, color: Colors.white),
             Expanded(
               child: ReorderableListView(
                 onReorder: (oldIndex, newIndex) {
