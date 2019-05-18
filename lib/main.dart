@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         color: Colors.blueGrey,
                       ),
                 Flexible(
-                  flex: 3,
+                  flex: 6,
                   child: Padding(
                     padding: EdgeInsets.only(
                       left: 10.0,
@@ -137,11 +137,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 Flexible(
-                  flex: 2,
+                  flex: 4,
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(sub != null
-                        ? toSubCountText(sub.data['subscribers'])
+                        ? toSubCountText(sub.data['subscribers']) + ' subs'
                         : ''),
                   ),
                 ),
@@ -217,7 +217,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       },
                       children: _getReorderableSubs(),
                     )
-                  : Text("Subreddits are loading..."),
+                  : Center(
+                      child: Text("Subreddits are loading...", style: Theme.of(context).textTheme.headline),
+                    ),
             ),
           ],
         ),
