@@ -84,6 +84,12 @@ class SubmissionListState extends State<SubmissionList> {
     return null;
   }
 
+  _onHide(sub) {
+    setState(() {
+     _submissions.remove(sub);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -101,6 +107,7 @@ class SubmissionListState extends State<SubmissionList> {
             final post = _submissions[index];
             return SubmissionView(
               submission: post,
+              onHide: _onHide,
             );
           },
         ),

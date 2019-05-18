@@ -3,7 +3,6 @@ import "package:draw/draw.dart";
 import "package:oauth2/oauth2.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:url_launcher/url_launcher.dart";
-import "package:quiver/strings.dart";
 import 'package:device_info/device_info.dart';
 
 class RedditSession {

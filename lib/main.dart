@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'redditsession.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:lurkers_for_reddit/submission_list.dart';
@@ -41,7 +40,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<String> _subreddits = List<String>();
   String _currentSub = 'frontpage';
   String _currentSort = 'hot';
-  bool _viewingUserEnteredSub = false;
+  bool _bottomSheetOpen = false;
+  Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
   List<String> sorts = [
     "hot",
     "new",
@@ -105,13 +105,31 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _bottomSheet() {
-    return _scaffoldKey.currentState
-        .showBottomSheet<Null>((BuildContext context) {
-      return new Container(
+    var x =
+        _scaffoldKey.currentState.showBottomSheet<Null>((BuildContext context) {
+      return Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.max,
           children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(
+                left: 40.0,
+                right: 40.0,
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter a subreddit...',
+                ),
+                onSubmitted: (text) {
+                  setState(() {
+                    _currentSub = text;
+                  });
+                  globalKey.currentState.newSubSelected(_currentSub);
+                  _sheetController.close();
+                },
+              ),
+            ),
             Divider(height: 24.0, color: Colors.white),
             Expanded(
               child: ReorderableListView(
@@ -132,6 +150,13 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
       );
     });
+    x.closed.then((y) {
+      setState(() {
+        _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
+        _bottomSheetOpen = false;
+      });
+    });
+    return x;
   }
 
   void getSubreddits() async {
@@ -146,6 +171,47 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavigationBar(
+        onTap: (index) {
+          if (index == 0) {
+            if (!_bottomSheetOpen) {
+              _bottomSheetOpen = true;
+              setState(() {
+                _subredditNavIcon = Icon(Icons.keyboard_arrow_down);
+              });
+              _sheetController = _bottomSheet();
+            } else {
+              _sheetController.close();
+              _sheetController = null;
+            }
+          } else if (index == 1) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text("Search..."),
+                  content: TextField(
+                    onSubmitted: (text) {
+                      Navigator.pop(context);
+                      print(text);
+                    },
+                  ),
+                );
+              },
+            );
+          }
+        },
+        items: [
+          BottomNavigationBarItem(
+            icon: _subredditNavIcon,
+            title: Text('Subreddits'),
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.search),
+            title: Text('Search'),
+          ),
+        ],
+      ),
       key: _scaffoldKey,
       drawer: Drawer(
         child: ListView(
@@ -214,7 +280,16 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: InkWell(
           onTap: () {
-            _sheetController = _bottomSheet();
+            if (!_bottomSheetOpen) {
+              _bottomSheetOpen = true;
+              setState(() {
+                _subredditNavIcon = Icon(Icons.keyboard_arrow_down);
+              });
+              _sheetController = _bottomSheet();
+            } else {
+              _sheetController.close();
+              _sheetController = null;
+            }
           },
           child: Row(
             children: <Widget>[
