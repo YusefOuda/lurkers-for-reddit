@@ -77,8 +77,10 @@ class RedditSession {
   Future<List<String>> getSubredditsDisplayNames() async {
     var sp = await SharedPreferences.getInstance();
     var subs = sp.getStringList('subreddits');
+    bool newSubs = false;
     if (subs == null) {
       subs = List<String>();
+      newSubs = true;
     }
     if (user != null) {
       await for (final sub in reddit.user.subreddits(limit: 99999)) {
@@ -92,6 +94,9 @@ class RedditSession {
       subs.insert(0, "all");
     if (!subs.contains('frontpage'))
       subs.insert(0, "frontpage");
+
+    if (newSubs)
+      subs.sort((a,b) => a.toLowerCase().compareTo(b.toLowerCase()));
 
     saveSubreddits(subs);
     return subs;
