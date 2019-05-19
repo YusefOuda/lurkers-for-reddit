@@ -95,7 +95,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                     flex: showThumbnail ? 10 : 13,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
                         Row(
                           mainAxisAlignment: MainAxisAlignment.start,
