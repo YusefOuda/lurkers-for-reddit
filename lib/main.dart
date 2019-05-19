@@ -218,7 +218,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: _getReorderableSubs(),
                     )
                   : Center(
-                      child: Text("Subreddits are loading...", style: Theme.of(context).textTheme.headline),
+                      child: Text("Subreddits are loading...",
+                          style: Theme.of(context).textTheme.headline),
                     ),
             ),
           ],
@@ -238,9 +239,8 @@ class _MyHomePageState extends State<MyHomePage> {
     _subreddits.clear();
     redditSession.getSubreddits().then((subs) {
       setState(() {
-        _sheetController.setState(() {
-          _subreddits.addAll(subs);
-        });
+        _subreddits.addAll(subs);
+        _sheetController.setState(() {});
       });
     });
   }

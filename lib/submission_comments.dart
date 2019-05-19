@@ -165,55 +165,39 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
           ],
         );
         if (!widget.submission.isSelf) {
-          return WillPopScope(
-            onWillPop: () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop(true);
-              }
-            },
-            child: Scaffold(
-              body: NestedScrollView(
-                headerSliverBuilder:
-                    (BuildContext context, bool innerBoxIsScrolled) {
-                  return <Widget>[
-                    SubmissionBody(submission: widget.submission)
-                  ];
-                },
-                body: body,
-              ),
+          return Scaffold(
+            body: NestedScrollView(
+              headerSliverBuilder:
+                  (BuildContext context, bool innerBoxIsScrolled) {
+                return <Widget>[SubmissionBody(submission: widget.submission)];
+              },
+              body: body,
             ),
           );
         } else {
           var unescape = HtmlUnescape();
-          return WillPopScope(
-            onWillPop: () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop(true);
-              }
-            },
-            child: Scaffold(
-              appBar: AppBar(),
-              body: ListView(
-                children: <Widget>[
-                  Center(
-                    child: Text(widget.submission.title,
-                        style: Theme.of(context).textTheme.headline),
+          return Scaffold(
+            appBar: AppBar(),
+            body: ListView(
+              children: <Widget>[
+                Center(
+                  child: Text(widget.submission.title,
+                      style: Theme.of(context).textTheme.headline),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: MarkdownBody(
+                    data: unescape.convert(widget.submission.selftext ?? ""),
+                    onTapLink: (url) {
+                      _handleLink(url);
+                    },
                   ),
-                  Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: MarkdownBody(
-                      data: unescape.convert(widget.submission.selftext ?? ""),
-                      onTapLink: (url) {
-                        _handleLink(url);
-                      },
-                    ),
-                  ),
-                  Divider(),
-                  body
-                ],
-                shrinkWrap: true,
-                scrollDirection: Axis.vertical,
-              ),
+                ),
+                Divider(),
+                body
+              ],
+              shrinkWrap: true,
+              scrollDirection: Axis.vertical,
             ),
           );
         }

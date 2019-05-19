@@ -1,6 +1,5 @@
 import "dart:async";
 import "package:draw/draw.dart";
-import 'package:lurkers_for_reddit/main.dart';
 import "package:oauth2/oauth2.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:url_launcher/url_launcher.dart";
