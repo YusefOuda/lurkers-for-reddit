@@ -9,18 +9,35 @@ import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 class _SubmissionViewState extends State<SubmissionView> {
   Color upvoteColor = Colors.white;
   Color downvoteColor = Colors.white;
-  Icon _saveIcon = Icon(Icons.star_border);
   @override
   Widget build(BuildContext context) {
     var thumb = widget.submission.thumbnail;
     bool showThumbnail = thumb != null && thumb.scheme.startsWith('http');
-    if (widget.submission.saved) {
-      _saveIcon = Icon(Icons.star);
-    } else {
-      _saveIcon = Icon(Icons.star_border);
-    }
     return IntrinsicHeight(
       child: InkWell(
+        onLongPress: () {
+          if (!widget.submission.saved) {
+            widget.submission.save().then((x) {
+              widget.submission.refresh().then((y) {
+                setState(() {});
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(new SnackBar(
+                  content: new Text("Post saved succesfully"),
+                ));
+              });
+            });
+          } else {
+            widget.submission.unsave().then((x) {
+              widget.submission.refresh().then((y) {
+                setState(() {});
+                Scaffold.of(context).hideCurrentSnackBar();
+                Scaffold.of(context).showSnackBar(new SnackBar(
+                  content: new Text("Post unsaved succesfully"),
+                ));
+              });
+            });
+          }
+        },
         onTap: () {
           Navigator.push(
             context,
@@ -75,7 +92,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                     ),
                   ),
                   Expanded(
-                    flex: showThumbnail ? 8 : 11,
+                    flex: showThumbnail ? 10 : 13,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -122,7 +139,10 @@ class _SubmissionViewState extends State<SubmissionView> {
                                                 null
                                             ? widget.submission.linkFlairText
                                             : "",
-                                            style: TextStyle(backgroundColor: Colors.blue.shade900, fontSize: 10.0)),
+                                        style: TextStyle(
+                                            backgroundColor:
+                                                Colors.blue.shade900,
+                                            fontSize: 10.0)),
                                   ],
                                 ),
                               ),
@@ -157,57 +177,19 @@ class _SubmissionViewState extends State<SubmissionView> {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
-                            Flexible(
-                              child: IconButton(
-                                iconSize: 16.0,
-                                icon: _saveIcon,
-                                onPressed: () {
-                                  if (!widget.submission.saved) {
-                                    widget.submission.save().then((x) {
-                                      widget.submission.refresh().then((y) {
-                                        setState(() {
-                                          _saveIcon = Icon(Icons.star);
-                                        });
-                                        Scaffold.of(context)
-                                            .hideCurrentSnackBar();
-                                        Scaffold.of(context)
-                                            .showSnackBar(new SnackBar(
-                                          content: new Text(
-                                              "Post saved succesfully"),
-                                        ));
-                                      });
-                                    });
-                                  } else {
-                                    widget.submission.unsave().then((x) {
-                                      widget.submission.refresh().then((y) {
-                                        setState(() {
-                                          _saveIcon = Icon(Icons.star_border);
-                                        });
-                                        Scaffold.of(context)
-                                            .hideCurrentSnackBar();
-                                        Scaffold.of(context)
-                                            .showSnackBar(new SnackBar(
-                                          content: new Text(
-                                              "Post unsaved succesfully"),
-                                        ));
-                                      });
-                                    });
-                                  }
-                                },
-                              ),
-                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
                   Flexible(
-                    flex: 1,
+                    flex: 2,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         IconButton(
+                          alignment: Alignment.center,
                           iconSize: 3.0,
                           icon: Icon(
                             Icons.arrow_upward,
@@ -234,6 +216,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                                   : Colors.blue),
                         ),
                         IconButton(
+                          alignment: Alignment.center,
                           iconSize: 3.0,
                           icon: Icon(
                             Icons.arrow_downward,

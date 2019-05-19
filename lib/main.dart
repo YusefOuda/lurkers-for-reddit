@@ -1,5 +1,6 @@
 import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/material.dart';
+import 'package:lurkers_for_reddit/helpers/user_hint_helper.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'helpers/text_helper.dart';
 import 'redditsession.dart';
@@ -228,13 +229,16 @@ class _MyHomePageState extends State<MyHomePage> {
     redditSession.getSubreddits().then((subs) {
       setState(() {
         _subreddits.addAll(subs);
-        _sheetController.setState(() {});
+        if (_sheetController != null) {
+          _sheetController.setState(() {});
+        }
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    UserHintHelper.showHintsIfNecessary(_scaffoldKey);
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
@@ -258,7 +262,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   content: TextField(
                     onSubmitted: (text) {
                       Navigator.pop(context);
-                      print(text);
                     },
                   ),
                 );
