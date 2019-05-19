@@ -10,36 +10,48 @@ class _CommentViewState extends State<CommentView> {
   Widget build(BuildContext context) {
     var unescape = new HtmlUnescape();
     return Container(
+      //padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
+      margin: EdgeInsets.only(left: (widget.depth * 10.0)),
       decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.black))),
-      child: Padding(
-        padding: EdgeInsets.only(
-          left: 10.0 + (widget.depth * 10.0),
-          top: 10.0,
-          bottom: 10.0,
-          right: 10.0,
-        ),
-        child: Container(
-          decoration: BoxDecoration(
-              border: Border(left: BorderSide(color: _getBorderSideColor()))),
-          padding: EdgeInsets.only(left: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.black45,
+            border: Border(left: BorderSide(color: _getBorderSideColor()))),
+        padding: EdgeInsets.only(left: 4.0),
+        child: Padding(
+          padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
           child: Column(
             children: <Widget>[
               Row(
                 children: <Widget>[
                   Text(
                     "/u/${widget.comment.author}",
-                    style: Theme.of(context).textTheme.subtitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .subtitle
+                        .copyWith(fontSize: 11.0),
                   ),
-                  Text("  • "),
-                  Text("${widget.comment.score} points"),
-                  Text("  • "),
+                  Text("  •  "),
+                  Text("${widget.comment.score} points",
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption
+                          .copyWith(fontSize: 11.0)),
+                  Text("  •  "),
                   Text(
-                      "${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}"),
-                      Spacer(),
+                      "${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption
+                          .copyWith(fontSize: 11.0)),
+                  Spacer(),
                   Visibility(
                     visible: widget.childrenCollapsed,
-                    child: Text("+" + widget.numChildren.toString(), style: TextStyle(backgroundColor: Colors.greenAccent), ),
+                    child: Text(
+                      "+" + widget.numChildren.toString(),
+                      style: TextStyle(backgroundColor: Colors.greenAccent),
+                    ),
                     replacement: Container(),
                   ),
                 ],
@@ -64,7 +76,18 @@ class _CommentViewState extends State<CommentView> {
   }
 
   _getBorderSideColor() {
-    var colors = [Colors.white, Colors.lightBlue, Colors.lightGreen, Colors.orange, Colors.pink, Colors.purple, Colors.yellow, Colors.amber, Colors.cyan, Colors.red];
+    var colors = [
+      Colors.white,
+      Colors.lightBlue,
+      Colors.lightGreen,
+      Colors.orange,
+      Colors.pink,
+      Colors.purple,
+      Colors.yellow,
+      Colors.amber,
+      Colors.cyan,
+      Colors.red
+    ];
     return colors[widget.depth % colors.length];
   }
 
@@ -78,7 +101,12 @@ class _CommentViewState extends State<CommentView> {
 }
 
 class CommentView extends StatefulWidget {
-  CommentView({Key key, this.comment, this.depth, this.childrenCollapsed, this.numChildren})
+  CommentView(
+      {Key key,
+      this.comment,
+      this.depth,
+      this.childrenCollapsed,
+      this.numChildren})
       : super(key: key);
 
   final Dart.Comment comment;

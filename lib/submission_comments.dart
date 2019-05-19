@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:draw/draw.dart' as Dart;
+import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lurkers_for_reddit/comment_and_depth.dart';
+import 'package:lurkers_for_reddit/helpers/text_helper.dart';
+import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:lurkers_for_reddit/submission_body.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -169,7 +172,29 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
             body: NestedScrollView(
               headerSliverBuilder:
                   (BuildContext context, bool innerBoxIsScrolled) {
-                return <Widget>[SubmissionBody(submission: widget.submission)];
+                return <Widget>[
+                  SubmissionBody(submission: widget.submission),
+                  SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        var subtitle = widget.submission.author
+                          + "  •  "
+                          + "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}"
+                          + "  •  "
+                          + "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"
+                          + '${widget.submission.linkFlairText != null ? '  •  ' + '[' + widget.submission.linkFlairText + ']' : ""}';
+                        return ListTile(
+                          title: Text(widget.submission.title, style: Theme.of(context).textTheme.headline,),
+                          subtitle: Text(subtitle),
+                        );
+                      },
+                      childCount: 1,
+                      addAutomaticKeepAlives: false,
+                      addRepaintBoundaries: false,
+                      addSemanticIndexes: false,
+                    ),
+                  ),
+                ];
               },
               body: body,
             ),

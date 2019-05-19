@@ -100,8 +100,17 @@ class SubmissionBodyState extends State<SubmissionBody> {
       );
     }
     return SliverAppBar(
+      pinned: false,
+      snap: false,
+      floating: true,
       expandedHeight: MediaQuery.of(context).size.height - 400,
+      title: Text(
+        widget.submission.subreddit.displayName,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
       flexibleSpace: FlexibleSpaceBar(
+        centerTitle: true,
         collapseMode: CollapseMode.parallax,
         background: material.Visibility(
           replacement: InkWell(

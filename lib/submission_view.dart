@@ -131,7 +131,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                                   .caption
                                   .copyWith(fontSize: 10.0),
                             ),
-                            Text("  • "),
+                            Text("  •  "),
                             Text(
                               widget.submission.domain,
                               style: Theme.of(context)
