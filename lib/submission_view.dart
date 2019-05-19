@@ -51,84 +51,96 @@ class _SubmissionViewState extends State<SubmissionView> {
               child: Row(
                 children: [
                   Expanded(
-                    flex: 4,
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 10, bottom: 10),
-                      child: Visibility(
-                        visible: showThumbnail,
-                        child: FadeInImage.memoryNetwork(
-                          height: 70.0,
-                          width: 70.0,
-                          placeholder: kTransparentImage,
-                          image: thumb.toString(),
-                          fit: BoxFit.cover,
-                        ),
-                        replacement: Container(
-                          height: 70.0,
-                          width: 70.0,
-                          color: Colors.blueGrey.withOpacity(0.3),
-                        ),
+                    flex: showThumbnail ? 3 : 0,
+                    child: Container(
+                      padding: EdgeInsets.only(right: 10.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Visibility(
+                            visible: showThumbnail,
+                            child: FadeInImage.memoryNetwork(
+                              height: 80.0,
+                              width: 80.0,
+                              placeholder: kTransparentImage,
+                              image: thumb.toString(),
+                              fit: BoxFit.cover,
+                            ),
+                            replacement: Container(),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  Spacer(
-                    flex: 1,
-                  ),
                   Expanded(
-                    flex: 15,
+                    flex: showThumbnail ? 8 : 11,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
                           children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(right: 10.0),
+                            Flexible(
                               child: Text(
                                 widget.submission.subreddit.path,
                                 style: Theme.of(context)
                                     .textTheme
                                     .caption
-                                    .copyWith(fontWeight: FontWeight.bold),
+                                    .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10.0),
                               ),
                             ),
                             Text(
-                              '/u/' + widget.submission.author,
-                              style: Theme.of(context).textTheme.caption,
+                              ' by /u/' + widget.submission.author,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  .copyWith(fontSize: 10.0),
                             ),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
                             Flexible(
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Text(
-                                  widget.submission.domain,
-                                  style: Theme.of(context).textTheme.caption,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
+                              child: Text(
+                                widget.submission.title,
+                                style: Theme.of(context).textTheme.headline.copyWith(fontSize: 15.0),
                               ),
                             ),
                           ],
                         ),
-                        Text(widget.submission.title),
                         Row(
                           children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(right: 10.0),
-                              child: Text(
-                                TimeConverter.convertUtcToDiffString(
-                                    widget.submission.createdUtc),
-                                style: Theme.of(context).textTheme.caption,
-                              ),
+                            Text(
+                              "${widget.submission.numComments} comments in ",
+                              maxLines: 1,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  .copyWith(fontSize: 10.0),
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(right: 10.0),
-                              child: Text(
-                                "${widget.submission.numComments} comments",
-                                maxLines: 1,
-                                style: Theme.of(context).textTheme.caption,
-                              ),
+                            Text(
+                              TimeConverter.convertUtcToDiffString(
+                                  widget.submission.createdUtc),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  .copyWith(fontSize: 10.0),
                             ),
-                            IconButton(
+                            Text("  • "),
+                            Text(
+                              widget.submission.domain,
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .caption
+                                  .copyWith(fontSize: 10.0),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            Flexible(
+                              child: IconButton(
                                 icon: _saveIcon,
                                 onPressed: () {
                                   if (!widget.submission.saved) {
@@ -162,63 +174,66 @@ class _SubmissionViewState extends State<SubmissionView> {
                                       });
                                     });
                                   }
-                                }),
+                                },
+                              ),
+                            ),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  Spacer(
+                  Flexible(
                     flex: 1,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        IconButton(
+                          iconSize: 3.0,
+                          icon: Icon(
+                            Icons.arrow_upward,
+                            color: upvoteColor,
+                            size: 24.0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              upvoteColor = Colors.orange;
+                              downvoteColor = Colors.white;
+                            });
+                            widget.submission.downvote().then((x) {
+                              print("upvoted");
+                            });
+                          },
+                        ),
+                        Text(
+                          "${widget.submission.score}",
+                          textAlign: TextAlign.center,
+                          maxLines: 1,
+                          style: Theme.of(context).textTheme.caption.copyWith(
+                              color: widget.submission.score > 0
+                                  ? Colors.orange
+                                  : Colors.blue),
+                        ),
+                        IconButton(
+                          iconSize: 3.0,
+                          icon: Icon(
+                            Icons.arrow_downward,
+                            color: downvoteColor,
+                            size: 24.0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              upvoteColor = Colors.white;
+                              downvoteColor = Colors.blue;
+                            });
+                            widget.submission.downvote().then((x) {
+                              print("downvoted");
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                  Expanded(
-                      child: Column(
-                        children: <Widget>[
-                          IconButton(
-                            iconSize: 3.0,
-                            icon: Icon(
-                              Icons.arrow_upward,
-                              color: upvoteColor,
-                              size: 24.0,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                upvoteColor = Colors.orange;
-                                downvoteColor = Colors.white;
-                              });
-                              widget.submission.downvote().then((x) {
-                                print("upvoted");
-                              });
-                            },
-                          ),
-                          Text(
-                            "${widget.submission.score}",
-                            maxLines: 1,
-                            style: Theme.of(context).textTheme.caption.copyWith(
-                                color: widget.submission.score > 0
-                                    ? Colors.orange
-                                    : Colors.blue),
-                          ),
-                          IconButton(
-                            iconSize: 3.0,
-                            icon: Icon(
-                              Icons.arrow_downward,
-                              color: downvoteColor,
-                              size: 24.0,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                upvoteColor = Colors.white;
-                                downvoteColor = Colors.blue;
-                              });
-                              widget.submission.downvote().then((x) {
-                                print("downvoted");
-                              });
-                            },
-                          ),
-                        ],
-                      ),
-                      flex: 2),
                 ],
               ),
             ),
