@@ -5,8 +5,18 @@ import 'package:lurkers_for_reddit/post_photo_view.dart';
 import 'package:lurkers_for_reddit/video_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
 
 class SubmissionBodyState extends State<SubmissionBody> {
+  Future<String> _vidUrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _vidUrl = getVideoUrl();
+  }
+
   String getImageUrl() {
     String imageUrl = "";
     if (widget.submission.isSelf) return imageUrl;
@@ -33,8 +43,8 @@ class SubmissionBodyState extends State<SubmissionBody> {
     return imageUrl;
   }
 
-  String getVideoUrl() {
-    String vidUrl = "";
+  Future<String> getVideoUrl() async {
+    String vidUrl;
     var data = widget.submission.data;
     if (widget.submission.url.toString().contains('v.redd.it')) {
       // look for fallback_url
@@ -44,18 +54,34 @@ class SubmissionBodyState extends State<SubmissionBody> {
         vidUrl = data['crosspost_parent_list'][0]['secure_media']
             ['reddit_video']['fallback_url'];
       }
+    } else if (widget.submission.url.toString().contains('streamable')) {
+      var hash = widget.submission.url.path;
+      var url = 'http://api.streamable.com/videos$hash';
+      var resp = await http.get(url);
+      var jsonResponse = convert.jsonDecode(resp.body);
+      vidUrl = 'http:' +  jsonResponse['files']['mp4']['url'];
+      return vidUrl;
+    } else if (widget.submission.url.toString().contains('gfycat')) {
+            var hash = widget.submission.url.path;
+      var url = 'https://api.gfycat.com/v1/gfycats$hash';
+      var resp = await http.get(url);
+      var jsonResponse = convert.jsonDecode(resp.body);
+      vidUrl = jsonResponse['gfyItem']['mp4Url'];
+      return vidUrl;
     }
     return vidUrl;
   }
 
   @override
   Widget build(BuildContext context) {
-    String imageUrl = getImageUrl();
-    String vidUrl = getVideoUrl();
+    String imageUrl;
+    setState(() {
+      imageUrl = getImageUrl();
+    });
     PhotoView photoView;
     String postUrl = widget.submission.url.toString();
     bool isVid = false;
-    if (postUrl.contains('v.redd.it')) {
+    if (postUrl.contains('v.redd.it') || postUrl.contains('streamable') || postUrl.contains('gfycat')) {
       isVid = true;
     }
     if (imageUrl.isNotEmpty &&
@@ -74,39 +100,53 @@ class SubmissionBodyState extends State<SubmissionBody> {
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
         background: material.Visibility(
-          visible: imageUrl.isNotEmpty || vidUrl.isNotEmpty,
-          child: InkWell(
-            onTap: () {
-              if (isVid && vidUrl.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    opaque: false,
-                    pageBuilder: (BuildContext context, _, __) => VideoViewer(
-                          url: vidUrl,
+          replacement: InkWell(child: Container(),onTap: () {
+            _handleLink(postUrl, imageUrl);
+          },),
+          visible: imageUrl.isNotEmpty || isVid,
+          child: FutureBuilder(
+            initialData: "",
+            future: _vidUrl,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return InkWell(
+                  onTap: () {
+                    if (isVid && snapshot.data.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        PageRouteBuilder(
+                          opaque: false,
+                          pageBuilder: (BuildContext context, _, __) =>
+                              VideoViewer(
+                                url: snapshot.data,
+                              ),
                         ),
-                  ),
-                );
-              } else if (photoView != null &&
-                  imageUrl.isNotEmpty) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PostPhotoView(
-                          photoView: photoView,
+                      );
+                    } else if (photoView != null && imageUrl.isNotEmpty) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => PostPhotoView(
+                                photoView: photoView,
+                              ),
                         ),
-                  ),
+                      );
+                    }
+                  },
+                  child: isVid
+                      ? Center(
+                          child: Icon(Icons.play_arrow, size: 100.0),
+                        )
+                      : Image.network(
+                          imageUrl,
+                          fit: BoxFit.cover,
+                        ),
                 );
               } else {
-                _handleLink(postUrl, imageUrl);
+                return Center(child: CircularProgressIndicator(),);
               }
             },
-            child: isVid ? Center(child: Icon(Icons.play_arrow, size: 100.0),) : Image.network(
-              imageUrl,
-              fit: BoxFit.cover,
-            ),
           ),
-          replacement: Container(),
         ),
       ),
     );
