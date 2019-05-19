@@ -1,6 +1,7 @@
 import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/material.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'helpers/text_helper.dart';
 import 'redditsession.dart';
 import 'package:uni_links/uni_links.dart';
 import 'package:lurkers_for_reddit/submission_list.dart';
@@ -141,7 +142,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(sub != null
-                        ? toSubCountText(sub.data['subscribers']) + ' subs'
+                        ? TextHelper.convertScoreToAbbreviated(sub.data['subscribers']) + ' subs'
                         : ''),
                   ),
                 ),
@@ -160,19 +161,6 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
     return widgets;
-  }
-
-  toSubCountText(subscribers) {
-    if (subscribers < 1000) {
-      return subscribers.toString();
-    } else if (subscribers < 10000) {
-      return (subscribers / 1000).toStringAsFixed(1) + 'k';
-    } else if (subscribers < 1000000) {
-      return (subscribers / 10000).toStringAsFixed(1) + 'k';
-    } else if (subscribers < 100000000) {
-      return (subscribers / 1000000).toStringAsFixed(1) + 'm';
-    }
-    return subscribers.toString();
   }
 
   _bottomSheet() {

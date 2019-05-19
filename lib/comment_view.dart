@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:draw/draw.dart' as Dart;
-import 'package:lurkers_for_reddit/time_converter.dart';
+import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:url_launcher/url_launcher.dart';

@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:draw/draw.dart' as Dart;
 import 'package:lurkers_for_reddit/submission_comments.dart';
 import 'package:transparent_image/transparent_image.dart';
-import 'package:lurkers_for_reddit/time_converter.dart';
+import 'package:lurkers_for_reddit/helpers/time_converter.dart';
+
+import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 
 class _SubmissionViewState extends State<SubmissionView> {
   Color upvoteColor = Colors.white;
@@ -206,7 +208,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                           },
                         ),
                         Text(
-                          "${widget.submission.score}",
+                          "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           style: Theme.of(context).textTheme.caption.copyWith(
