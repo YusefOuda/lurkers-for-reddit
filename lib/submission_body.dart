@@ -34,7 +34,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
   }
 
   String getVideoUrl() {
-    String vidUrl;
+    String vidUrl = "";
     var data = widget.submission.data;
     if (widget.submission.url.toString().contains('v.redd.it')) {
       // look for fallback_url
@@ -74,10 +74,10 @@ class SubmissionBodyState extends State<SubmissionBody> {
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
         background: material.Visibility(
-          visible: imageUrl.isNotEmpty,
+          visible: imageUrl.isNotEmpty || vidUrl.isNotEmpty,
           child: InkWell(
             onTap: () {
-              if (isVid && vidUrl != null) {
+              if (isVid && vidUrl.isNotEmpty) {
                 Navigator.push(
                   context,
                   PageRouteBuilder(
@@ -101,7 +101,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
                 _handleLink(postUrl, imageUrl);
               }
             },
-            child: Image.network(
+            child: isVid ? Center(child: Icon(Icons.play_arrow, size: 100.0),) : Image.network(
               imageUrl,
               fit: BoxFit.cover,
             ),
