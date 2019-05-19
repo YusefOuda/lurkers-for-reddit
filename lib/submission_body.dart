@@ -59,10 +59,10 @@ class SubmissionBodyState extends State<SubmissionBody> {
       var url = 'http://api.streamable.com/videos$hash';
       var resp = await http.get(url);
       var jsonResponse = convert.jsonDecode(resp.body);
-      vidUrl = 'http:' +  jsonResponse['files']['mp4']['url'];
+      vidUrl = 'http:' + jsonResponse['files']['mp4']['url'];
       return vidUrl;
     } else if (widget.submission.url.toString().contains('gfycat')) {
-            var hash = widget.submission.url.path;
+      var hash = widget.submission.url.path;
       var url = 'https://api.gfycat.com/v1/gfycats$hash';
       var resp = await http.get(url);
       var jsonResponse = convert.jsonDecode(resp.body);
@@ -81,15 +81,19 @@ class SubmissionBodyState extends State<SubmissionBody> {
     PhotoView photoView;
     String postUrl = widget.submission.url.toString();
     bool isVid = false;
-    if (postUrl.contains('v.redd.it') || postUrl.contains('streamable') || postUrl.contains('gfycat')) {
+    bool isPic = false;
+    if (postUrl.contains('v.redd.it') ||
+        postUrl.contains('streamable') ||
+        postUrl.contains('gfycat')) {
       isVid = true;
     }
-    if (imageUrl.isNotEmpty &&
-        (imageUrl.contains('.mp4') ||
-            imageUrl.contains('.gif') ||
-            imageUrl.contains('.jpg') ||
-            imageUrl.contains('.jpeg') ||
-            imageUrl.contains('.png'))) {
+    if (widget.submission.url.toString().isNotEmpty &&
+        (widget.submission.url.toString().contains('.mp4') ||
+            widget.submission.url.toString().contains('.gif') ||
+            widget.submission.url.toString().contains('.jpg') ||
+            widget.submission.url.toString().contains('.jpeg') ||
+            widget.submission.url.toString().contains('.png'))) {
+      isPic = true;
       photoView = PhotoView(
         gaplessPlayback: true,
         imageProvider: NetworkImage(imageUrl, headers: null),
@@ -100,10 +104,29 @@ class SubmissionBodyState extends State<SubmissionBody> {
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.parallax,
         background: material.Visibility(
-          replacement: InkWell(child: Container(),onTap: () {
-            _handleLink(postUrl, imageUrl);
-          },),
-          visible: imageUrl.isNotEmpty || isVid,
+          replacement: InkWell(
+            child: isPic || imageUrl.isNotEmpty
+                ? Image.network(
+                    imageUrl,
+                    fit: BoxFit.cover,
+                  )
+                : Container(),
+            onTap: () {
+              if (photoView != null) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => PostPhotoView(
+                          photoView: photoView,
+                        ),
+                  ),
+                );
+              } else {
+                _handleLink(postUrl, imageUrl);
+              }
+            },
+          ),
+          visible: isVid,
           child: FutureBuilder(
             initialData: "",
             future: _vidUrl,
@@ -122,28 +145,16 @@ class SubmissionBodyState extends State<SubmissionBody> {
                               ),
                         ),
                       );
-                    } else if (photoView != null && imageUrl.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => PostPhotoView(
-                                photoView: photoView,
-                              ),
-                        ),
-                      );
                     }
                   },
-                  child: isVid
-                      ? Center(
-                          child: Icon(Icons.play_arrow, size: 100.0),
-                        )
-                      : Image.network(
-                          imageUrl,
-                          fit: BoxFit.cover,
-                        ),
+                  child: Center(
+                    child: Icon(Icons.play_arrow, size: 100.0),
+                  ),
                 );
               } else {
-                return Center(child: CircularProgressIndicator(),);
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
               }
             },
           ),

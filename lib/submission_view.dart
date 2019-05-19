@@ -75,7 +75,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                     flex: 1,
                   ),
                   Expanded(
-                    flex: 16,
+                    flex: 15,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -95,6 +95,17 @@ class _SubmissionViewState extends State<SubmissionView> {
                             Text(
                               '/u/' + widget.submission.author,
                               style: Theme.of(context).textTheme.caption,
+                            ),
+                            Flexible(
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: Text(
+                                  widget.submission.domain,
+                                  style: Theme.of(context).textTheme.caption,
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
                             ),
                           ],
                         ),
