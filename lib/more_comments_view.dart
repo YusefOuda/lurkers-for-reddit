@@ -14,14 +14,13 @@ class MoreCommentsView extends StatelessWidget {
         onLoadTap(parentId);
       },
       child: Container(
+        margin: EdgeInsets.only(left: (depth * 8.0)),
         decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.black))),
+            ),//border: Border(bottom: BorderSide(color: Colors.black))),
         child: Padding(
           padding: EdgeInsets.only(
-            left: 10.0 + (depth * 10.0),
-            top: 10.0,
-            bottom: 10.0,
-            right: 10.0,
+            top: 8.0,
+            bottom: 8.0,
           ),
           child: Row(
             children: <Widget>[

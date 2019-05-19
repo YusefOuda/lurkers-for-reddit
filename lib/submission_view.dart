@@ -106,9 +106,25 @@ class _SubmissionViewState extends State<SubmissionView> {
                         Row(
                           children: <Widget>[
                             Flexible(
-                              child: Text(
-                                widget.submission.title,
-                                style: Theme.of(context).textTheme.headline.copyWith(fontSize: 15.0),
+                              child: RichText(
+                                text: TextSpan(
+                                  children: <TextSpan>[
+                                    TextSpan(
+                                      text: widget.submission.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline
+                                          .copyWith(fontSize: 15.0),
+                                    ),
+                                    TextSpan(text: "  "),
+                                    TextSpan(
+                                        text: widget.submission.linkFlairText !=
+                                                null
+                                            ? widget.submission.linkFlairText
+                                            : "",
+                                            style: TextStyle(backgroundColor: Colors.blue.shade900, fontSize: 10.0)),
+                                  ],
+                                ),
                               ),
                             ),
                           ],
@@ -143,6 +159,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                             ),
                             Flexible(
                               child: IconButton(
+                                iconSize: 16.0,
                                 icon: _saveIcon,
                                 onPressed: () {
                                   if (!widget.submission.saved) {

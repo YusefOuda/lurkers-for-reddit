@@ -10,8 +10,7 @@ class _CommentViewState extends State<CommentView> {
   Widget build(BuildContext context) {
     var unescape = new HtmlUnescape();
     return Container(
-      //padding: EdgeInsets.only(top: 7.0, bottom: 7.0),
-      margin: EdgeInsets.only(left: (widget.depth * 10.0)),
+      margin: EdgeInsets.only(left: (widget.depth * 8.0)),
       decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.black))),
       child: Container(
@@ -45,6 +44,13 @@ class _CommentViewState extends State<CommentView> {
                           .textTheme
                           .caption
                           .copyWith(fontSize: 11.0)),
+                  Text(widget.comment.authorFlairText != null && widget.comment.authorFlairText.isNotEmpty ? "  •  " : ""),
+                  Text(
+                      "${widget.comment.authorFlairText != null ? widget.comment.authorFlairText : ""}",
+                      style: Theme.of(context)
+                          .textTheme
+                          .caption
+                          .copyWith(fontSize: 11.0, backgroundColor: Colors.blue.shade900), ),
                   Spacer(),
                   Visibility(
                     visible: widget.childrenCollapsed,
@@ -60,6 +66,11 @@ class _CommentViewState extends State<CommentView> {
                 children: <Widget>[
                   Flexible(
                     child: MarkdownBody(
+                      styleSheet:
+                          MarkdownStyleSheet.fromTheme(Theme.of(context))
+                              .copyWith(
+                                  blockquoteDecoration: BoxDecoration(
+                                      color: Colors.blueGrey.shade700)),
                       data: unescape.convert(widget.comment.body),
                       onTapLink: (url) {
                         _handleLink(url);

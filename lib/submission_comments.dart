@@ -177,15 +177,29 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        var subtitle = widget.submission.author
-                          + "  •  "
-                          + "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}"
-                          + "  •  "
-                          + "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"
-                          + '${widget.submission.linkFlairText != null ? '  •  ' + '[' + widget.submission.linkFlairText + ']' : ""}';
+                        var subtitle = RichText(
+                          text: TextSpan(
+                            children: <TextSpan>[
+                              TextSpan(
+                                text:
+                                    "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
+                              ),
+                              TextSpan(text: "  •  "),
+                              TextSpan(text: "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"),
+                              TextSpan(text: "  •  "),
+                              TextSpan(
+                                  text: widget.submission.linkFlairText != null
+                                      ? widget.submission.linkFlairText
+                                      : "",
+                                  style: TextStyle(
+                                      backgroundColor: Colors.blue.shade900,
+                                      fontSize: 10.0)),
+                            ],
+                          ),
+                        );
                         return ListTile(
                           title: Text(widget.submission.title, style: Theme.of(context).textTheme.headline,),
-                          subtitle: Text(subtitle),
+                          subtitle: subtitle
                         );
                       },
                       childCount: 1,
@@ -212,6 +226,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: MarkdownBody(
+                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(blockquoteDecoration: BoxDecoration(color: Colors.blueGrey.shade700)),
                     data: unescape.convert(widget.submission.selftext ?? ""),
                     onTapLink: (url) {
                       _handleLink(url);
