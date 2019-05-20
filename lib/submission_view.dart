@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:draw/draw.dart' as Dart;
+import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_comments.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
@@ -16,7 +17,12 @@ class _SubmissionViewState extends State<SubmissionView> {
     return IntrinsicHeight(
       child: InkWell(
         onLongPress: () {
-          if (!widget.submission.saved) {
+          if (redditSession.user == null) {
+            Scaffold.of(context).hideCurrentSnackBar();
+            Scaffold.of(context).showSnackBar(new SnackBar(
+              content: new Text("You must be logged in to do that!"),
+            ));
+          } else if (!widget.submission.saved) {
             widget.submission.save().then((x) {
               widget.submission.refresh().then((y) {
                 setState(() {});
@@ -49,6 +55,15 @@ class _SubmissionViewState extends State<SubmissionView> {
           );
         },
         child: Dismissible(
+          confirmDismiss: (d) {
+            if (redditSession.user == null) {
+              Scaffold.of(context).hideCurrentSnackBar();
+              Scaffold.of(context).showSnackBar(new SnackBar(
+                content: new Text("You must be logged in to do that!"),
+              ));
+              return;
+            }
+          },
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
@@ -177,6 +192,10 @@ class _SubmissionViewState extends State<SubmissionView> {
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
                             ),
+                            Visibility(
+                              visible: widget.submission.saved,
+                              child: Icon(Icons.star),
+                            ),
                           ],
                         ),
                       ],
@@ -197,6 +216,14 @@ class _SubmissionViewState extends State<SubmissionView> {
                             size: 24.0,
                           ),
                           onPressed: () {
+                            if (redditSession.user == null) {
+                              Scaffold.of(context).hideCurrentSnackBar();
+                              Scaffold.of(context).showSnackBar(new SnackBar(
+                                content: new Text(
+                                    "You must be logged in to do that!"),
+                              ));
+                              return;
+                            }
                             setState(() {
                               upvoteColor = Colors.orange;
                               downvoteColor = Colors.white;
@@ -224,6 +251,14 @@ class _SubmissionViewState extends State<SubmissionView> {
                             size: 24.0,
                           ),
                           onPressed: () {
+                            if (redditSession.user == null) {
+                              Scaffold.of(context).hideCurrentSnackBar();
+                              Scaffold.of(context).showSnackBar(new SnackBar(
+                                content: new Text(
+                                    "You must be logged in to do that!"),
+                              ));
+                              return;
+                            }
                             setState(() {
                               upvoteColor = Colors.white;
                               downvoteColor = Colors.blue;
