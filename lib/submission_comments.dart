@@ -74,10 +74,10 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
     return Builder(
       builder: (ctx) {
         var body = Column(
-          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Flexible(
               child: ListView.builder(
+                padding: EdgeInsets.zero,
                 physics: ClampingScrollPhysics(),
                 shrinkWrap: true,
                 itemCount: _comments.length,
