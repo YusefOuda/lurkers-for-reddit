@@ -84,23 +84,29 @@ class RedditSession {
       subs.add(sub);
     }
 
-    subs.insert(0, 'popular');
-    subs.insert(0, 'all');
-    subs.insert(0, 'frontpage');
-
     if (noSavedSubs) {
       subNameList = List<String>();
       subs.sort((a, b) {
-        String aName = a.runtimeType == Subreddit ? a.displayName.toLowerCase() : a.toLowerCase();
-        String bName = b.runtimeType == Subreddit ? b.displayName.toLowerCase() : b.toLowerCase();
+        String aName = a.runtimeType == Subreddit
+            ? a.displayName.toLowerCase()
+            : a.toLowerCase();
+        String bName = b.runtimeType == Subreddit
+            ? b.displayName.toLowerCase()
+            : b.toLowerCase();
         return aName.compareTo(bName);
       });
+      subs.insert(0, 'popular');
+      subs.insert(0, 'all');
+      subs.insert(0, 'frontpage');
       subs.forEach((s) {
         var name = s.runtimeType == Subreddit ? s.displayName : s;
         subNameList.add(name);
       });
     } else {
       List<dynamic> tempSubs = List<dynamic>();
+      subs.insert(0, 'popular');
+      subs.insert(0, 'all');
+      subs.insert(0, 'frontpage');
       subNameList.forEach((s) {
         var sub = subs.firstWhere(
             (x) => (x.runtimeType == Subreddit ? x.displayName : x) == s);

@@ -61,17 +61,28 @@ class _SubmissionViewState extends State<SubmissionView> {
               Scaffold.of(context).showSnackBar(new SnackBar(
                 content: new Text("You must be logged in to do that!"),
               ));
-              return;
+              return Future.value(false);
             }
+            return Future.value(true);
           },
           direction: DismissDirection.endToStart,
           onDismissed: (direction) {
             if (direction == DismissDirection.endToStart) {
+              var sub = widget.submission;
               widget.submission.hide().then((x) {
-                widget.onHide(widget.submission);
+                widget.onHide(sub);
                 setState(() {
                   Scaffold.of(context).showSnackBar(new SnackBar(
+                    duration: Duration(seconds: 6),
                     content: new Text("Post hidden succesfully"),
+                    action: SnackBarAction(
+                      label: "Undo",
+                      onPressed: () {
+                        sub.unhide().then((y) {
+                          widget.onHideUndo(sub, widget.index);
+                        });
+                      },
+                    ),
                   ));
                 });
               });
@@ -166,6 +177,14 @@ class _SubmissionViewState extends State<SubmissionView> {
                         ),
                         Row(
                           children: <Widget>[
+                            Visibility(
+                              visible: widget.submission.saved,
+                              child: Icon(
+                                Icons.star,
+                                size: 10.0,
+                                color: Colors.yellow,
+                              ),
+                            ),
                             Text(
                               "${widget.submission.numComments} comments in ",
                               maxLines: 1,
@@ -191,10 +210,6 @@ class _SubmissionViewState extends State<SubmissionView> {
                                   .copyWith(fontSize: 10.0),
                               overflow: TextOverflow.ellipsis,
                               maxLines: 1,
-                            ),
-                            Visibility(
-                              visible: widget.submission.saved,
-                              child: Icon(Icons.star),
                             ),
                           ],
                         ),
@@ -282,10 +297,13 @@ class _SubmissionViewState extends State<SubmissionView> {
 }
 
 class SubmissionView extends StatefulWidget {
-  SubmissionView({Key key, this.submission, this.onHide}) : super(key: key);
+  SubmissionView({Key key, this.submission, this.onHide, this.onHideUndo, this.index})
+      : super(key: key);
 
   final Dart.Submission submission;
   final Function onHide;
+  final Function onHideUndo;
+  final int index;
 
   @override
   _SubmissionViewState createState() => _SubmissionViewState();

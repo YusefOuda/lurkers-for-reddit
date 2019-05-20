@@ -95,6 +95,12 @@ class SubmissionListState extends State<SubmissionList> {
     });
   }
 
+  _onHideUndo(sub, index) {
+    setState(() {
+      _submissions.insert(index, sub);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return RefreshIndicator(
@@ -112,7 +118,9 @@ class SubmissionListState extends State<SubmissionList> {
             final post = _submissions[index];
             return SubmissionView(
               submission: post,
+              index: index,
               onHide: _onHide,
+              onHideUndo: _onHideUndo,
             );
           },
         ),
