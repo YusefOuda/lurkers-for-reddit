@@ -61,6 +61,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     getSubreddits();
     _appBarColor = Colors.black12;
+    WidgetsBinding.instance.addPostFrameCallback((_) => UserHintHelper.showHintsIfNecessary(_scaffoldKey));
   }
 
   Color _getSubColor(sub) {
@@ -238,7 +239,6 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    UserHintHelper.showHintsIfNecessary(_scaffoldKey);
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
         onTap: (index) {
