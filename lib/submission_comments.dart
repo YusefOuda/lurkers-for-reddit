@@ -74,6 +74,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
     return Builder(
       builder: (ctx) {
         var body = Column(
+          mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Flexible(
               child: ListView.builder(
@@ -205,9 +206,6 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                         );
                       },
                       childCount: 1,
-                      addAutomaticKeepAlives: false,
-                      addRepaintBoundaries: false,
-                      addSemanticIndexes: false,
                     ),
                   ),
                 ];
