@@ -180,13 +180,15 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                         var subtitle = RichText(
                           text: TextSpan(
                             children: <TextSpan>[
+                              TextSpan(text: "/u/${widget.submission.author}"),
+                              TextSpan(text: "  •  "),
                               TextSpan(
                                 text:
                                     "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
                               ),
                               TextSpan(text: "  •  "),
                               TextSpan(text: "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"),
-                              TextSpan(text: "  •  "),
+                              TextSpan(text: widget.submission.linkFlairText != null ? "  •  " : ""),
                               TextSpan(
                                   text: widget.submission.linkFlairText != null
                                       ? widget.submission.linkFlairText
