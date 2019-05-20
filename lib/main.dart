@@ -123,7 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     : Container(
                         height: 30.0,
                         width: 30.0,
-                        color: Colors.blueGrey,
+                        color: Colors.black.withOpacity(0),
                       ),
                 Flexible(
                   flex: 6,
