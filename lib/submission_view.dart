@@ -176,6 +176,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                           ],
                         ),
                         Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
                             Visibility(
                               visible: widget.submission.saved,
@@ -202,14 +203,16 @@ class _SubmissionViewState extends State<SubmissionView> {
                                   .copyWith(fontSize: 10.0),
                             ),
                             Text("  •  "),
-                            Text(
-                              widget.submission.domain,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  .copyWith(fontSize: 10.0),
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
+                            Flexible(
+                              child: Text(
+                                widget.submission.domain,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption
+                                    .copyWith(fontSize: 10.0),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                              ),
                             ),
                           ],
                         ),
@@ -297,7 +300,8 @@ class _SubmissionViewState extends State<SubmissionView> {
 }
 
 class SubmissionView extends StatefulWidget {
-  SubmissionView({Key key, this.submission, this.onHide, this.onHideUndo, this.index})
+  SubmissionView(
+      {Key key, this.submission, this.onHide, this.onHideUndo, this.index})
       : super(key: key);
 
   final Dart.Submission submission;

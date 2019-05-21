@@ -42,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   PersistentBottomSheetController _sheetController;
   String _userNameText = redditSession?.user?.displayName ?? "";
   List<dynamic> _subreddits = List<dynamic>();
-  String _currentSub = 'frontpage';
+  dynamic _currentSub = 'frontpage';
   String _currentSort = 'hot';
   bool _bottomSheetOpen = false;
   Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
@@ -61,7 +61,8 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     getSubreddits();
     _appBarColor = Colors.black12;
-    WidgetsBinding.instance.addPostFrameCallback((_) => UserHintHelper.showHintsIfNecessary(_scaffoldKey));
+    WidgetsBinding.instance.addPostFrameCallback(
+        (_) => UserHintHelper.showHintsIfNecessary(_scaffoldKey));
   }
 
   Color _getSubColor(sub) {
@@ -101,7 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: InkWell(
           onTap: () {
             setState(() {
-              _currentSub = sub != null ? sub.displayName : s;
+              _currentSub = sub != null ? sub : s;
               _appBarColor = _getSubColor(sub).withOpacity(0.5);
             });
             globalKey.currentState.newSubSelected(_currentSub);
@@ -144,7 +145,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Align(
                     alignment: Alignment.centerRight,
                     child: Text(sub != null
-                        ? TextHelper.convertScoreToAbbreviated(sub.data['subscribers']) + ' subs'
+                        ? TextHelper.convertScoreToAbbreviated(
+                                sub.data['subscribers']) +
+                            ' subs'
                         : ''),
                   ),
                 ),
@@ -347,6 +350,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       appBar: AppBar(
         backgroundColor: _appBarColor,
+        titleSpacing: 0.0,
         title: InkWell(
           onTap: () {
             if (!_bottomSheetOpen) {
@@ -361,8 +365,15 @@ class _MyHomePageState extends State<MyHomePage> {
             }
           },
           child: Row(
+            mainAxisSize: MainAxisSize.max,
             children: <Widget>[
-              _currentSub != null ? Text(_currentSub) : Text('Lurkr'),
+              _currentSub != null
+                  ? Flexible(
+                      child: Text(_currentSub.runtimeType == Dart.Subreddit
+                          ? _currentSub.displayName
+                          : _currentSub),
+                    )
+                  : Text('Lurkers for reddit'),
             ],
           ),
         ),

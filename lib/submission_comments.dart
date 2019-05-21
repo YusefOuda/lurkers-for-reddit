@@ -98,18 +98,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                             parentId: commentAndDepth.comment.fullname,
                             depth: 0,
                             onLoadTap: (String id) {
-                              var index = _comments.indexWhere((x) =>
-                                  x.comment.fullname == id &&
-                                  x.comment is Dart.MoreComments);
-                              _comments[index].comment.comments().then((x) {
-                                _comments.removeAt(index);
-                                setState(() {
-                                  x.forEach((c) {
-                                    addToComments(c, index: index);
-                                    index++;
-                                  });
-                                });
-                              });
+                              _loadMore(id);
                             }),
                       );
                     } else {
@@ -119,20 +108,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                             parentId: parent.comment.fullname,
                             depth: parent.depth + 1,
                             onLoadTap: (String parentId) {
-                              var index = _comments.indexWhere((x) =>
-                                  x.comment.parentId == parentId &&
-                                  x.comment is Dart.MoreComments);
-                              _comments[index].comment.comments().then((x) {
-                                _comments.removeAt(index);
-                                setState(() {
-                                  x.forEach((c) {
-                                    addToComments(c,
-                                        index: index, depth: c.depth);
-                                    index++;
-                                  });
-                                });
-                              });
-                              print("LOADING MORE $parentId");
+                              _loadMoreParent(parentId);
                             }),
                       );
                     }
@@ -188,8 +164,13 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                                     "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
                               ),
                               TextSpan(text: "  •  "),
-                              TextSpan(text: "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"),
-                              TextSpan(text: widget.submission.linkFlairText != null ? "  •  " : ""),
+                              TextSpan(
+                                  text:
+                                      "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"),
+                              TextSpan(
+                                  text: widget.submission.linkFlairText != null
+                                      ? "  •  "
+                                      : ""),
                               TextSpan(
                                   text: widget.submission.linkFlairText != null
                                       ? widget.submission.linkFlairText
@@ -201,9 +182,11 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                           ),
                         );
                         return ListTile(
-                          title: Text(widget.submission.title, style: Theme.of(context).textTheme.headline,),
-                          subtitle: subtitle
-                        );
+                            title: Text(
+                              widget.submission.title,
+                              style: Theme.of(context).textTheme.headline,
+                            ),
+                            subtitle: subtitle);
                       },
                       childCount: 1,
                     ),
@@ -226,7 +209,10 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: MarkdownBody(
-                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context)).copyWith(blockquoteDecoration: BoxDecoration(color: Colors.blueGrey.shade700)),
+                    styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                        .copyWith(
+                            blockquoteDecoration:
+                                BoxDecoration(color: Colors.blueGrey.shade700)),
                     data: unescape.convert(widget.submission.selftext ?? ""),
                     onTapLink: (url) {
                       _handleLink(url);
@@ -243,6 +229,35 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
         }
       },
     );
+  }
+
+  _loadMore(id) async {
+    var index = _comments.indexWhere(
+        (x) => x.comment.fullname == id && x.comment is Dart.MoreComments);
+    _comments[index].comment.comments().then((x) {
+      _comments.removeAt(index);
+      setState(() {
+        x.forEach((c) {
+          addToComments(c, index: index);
+          index++;
+        });
+      });
+    });
+  }
+
+  _loadMoreParent(parentId) async {
+    var index = _comments.indexWhere((x) =>
+        x.comment.parentId == parentId && x.comment is Dart.MoreComments);
+    _comments[index].comment.comments().then((x) {
+      _comments.removeAt(index);
+      setState(() {
+        x.forEach((c) {
+          addToComments(c, index: index, depth: c.depth);
+          index++;
+        });
+      });
+    });
+    print("LOADING MORE $parentId");
   }
 
   _handleLink(url) async {
