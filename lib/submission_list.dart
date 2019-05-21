@@ -76,7 +76,6 @@ class SubmissionListState extends State<SubmissionList> {
         _sub.runtimeType == Subreddit && _sub.data['banner_img'] != null
             ? _sub.data['banner_img']
             : '';
-    print(_headerImage);
     setState(() {
       _submissions.clear();
     });
@@ -117,7 +116,7 @@ class SubmissionListState extends State<SubmissionList> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return _loading ? Center(child: CircularProgressIndicator(),) : Scaffold(
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
         child: NestedScrollView(

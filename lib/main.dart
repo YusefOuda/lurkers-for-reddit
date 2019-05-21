@@ -20,6 +20,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Lurkers for Reddit',
       theme: ThemeData(
+        pageTransitionsTheme: PageTransitionsTheme(builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+        }),
         primarySwatch: Colors.blue,
         brightness: Brightness.dark,
       ),
@@ -244,8 +248,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
+        unselectedItemColor: Theme.of(context).colorScheme.onBackground,
+        selectedFontSize: 12.0,
+        selectedItemColor: Theme.of(context).colorScheme.onBackground,
         onTap: (index) {
-          if (index == 0) {
+          if (index == 1) {
             if (!_bottomSheetOpen) {
               _bottomSheetOpen = true;
               setState(() {
@@ -256,30 +263,18 @@ class _MyHomePageState extends State<MyHomePage> {
               _sheetController.close();
               _sheetController = null;
             }
-          } else if (index == 1) {
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text("Search..."),
-                  content: TextField(
-                    onSubmitted: (text) {
-                      Navigator.pop(context);
-                    },
-                  ),
-                );
-              },
-            );
+          } else if (index == 0) {
+            globalKey.currentState.newSubSelected(_currentSub);
           }
         },
         items: [
           BottomNavigationBarItem(
-            icon: _subredditNavIcon,
-            title: Text('Subreddits'),
+            icon: Icon(Icons.refresh),
+            title: Text('Refresh'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.search),
-            title: Text('Search'),
+            icon: _subredditNavIcon,
+            title: Text('Subreddits'),
           ),
         ],
       ),
