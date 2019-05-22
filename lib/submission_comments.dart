@@ -1,4 +1,6 @@
+import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -101,7 +103,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                                       commentAndDepth.comment.parentId,
                                   orElse: () {});
                               if (parent == null) {
-                                return Visibility(
+                                return vis.Visibility(
                                   visible: commentAndDepth.visible,
                                   child: MoreCommentsView(
                                       parentId:
@@ -112,7 +114,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                                       }),
                                 );
                               } else {
-                                return Visibility(
+                                return vis.Visibility(
                                   visible: commentAndDepth.visible,
                                   child: MoreCommentsView(
                                       parentId: parent.comment.fullname,
@@ -137,7 +139,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                                     }
                                   });
                                 },
-                                child: Visibility(
+                                child: vis.Visibility(
                                   child: CommentView(
                                       comment: commentAndDepth.comment,
                                       depth: commentAndDepth.depth,
@@ -284,18 +286,24 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
           var unescape = HtmlUnescape();
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: SubredditHelper.getSubColor(widget.subreddit),
+              backgroundColor: SubredditHelper.getSubColor(
+                  widget?.subreddits?.firstWhere(
+                      (x) =>
+                          (x.runtimeType == Subreddit ? x.displayName : x) ==
+                          widget.submission.subreddit.displayName,
+                      orElse: () => ""),
+                  defaultColor: Theme.of(context).cardColor),
             ),
             body: ListView(
               children: <Widget>[
                 headerRow,
-                Visibility(
+                vis.Visibility(
                   visible: widget.submission.selftext != null &&
                       widget.submission.selftext.isNotEmpty,
                   child: Divider(),
                   replacement: Container(),
                 ),
-                Visibility(
+                vis.Visibility(
                   visible: widget.submission.selftext != null &&
                       widget.submission.selftext.isNotEmpty,
                   replacement: Container(),
@@ -366,11 +374,13 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
 }
 
 class SubmissionComments extends StatefulWidget {
-  SubmissionComments({Key key, this.submission, this.subreddit})
+  SubmissionComments(
+      {Key key, this.submission, this.subreddit, this.subreddits})
       : super(key: key);
 
   final Dart.Submission submission;
   final dynamic subreddit;
+  final List<dynamic> subreddits;
 
   @override
   _SubmissionCommentsState createState() => _SubmissionCommentsState();

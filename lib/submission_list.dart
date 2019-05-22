@@ -148,6 +148,7 @@ class SubmissionListState extends State<SubmissionList> {
                     onHide: _onHide,
                     onHideUndo: _onHideUndo,
                     subreddit: widget.sub,
+                    subreddits: widget.subreddits,
                   );
                 }, childCount: _submissions.length),
               ),
@@ -162,9 +163,10 @@ class SubmissionListState extends State<SubmissionList> {
 }
 
 class SubmissionList extends StatefulWidget {
-  SubmissionList({Key key, this.sub}) : super(key: key);
+  SubmissionList({Key key, this.sub, this.subreddits}) : super(key: key);
 
   final dynamic sub;
+  final List<dynamic> subreddits;
 
   @override
   SubmissionListState createState() => SubmissionListState();

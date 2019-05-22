@@ -86,8 +86,7 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       var widget = Visibility(
         key: Key(subName),
-        visible:
-            _searchSubString.isEmpty || subName.contains(_searchSubString),
+        visible: _searchSubString.isEmpty || subName.contains(_searchSubString),
         child: Container(
           constraints: BoxConstraints(maxHeight: 50.0),
           decoration: BoxDecoration(
@@ -390,7 +389,11 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ],
       ),
-      body: SubmissionList(key: globalKey, sub: _currentSub),
+      body: SubmissionList(
+        key: globalKey,
+        sub: _currentSub,
+        subreddits: _subreddits,
+      ),
     );
   }
 }

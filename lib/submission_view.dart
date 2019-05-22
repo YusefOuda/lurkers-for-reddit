@@ -1,11 +1,13 @@
+import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
 import 'package:html_unescape/html_unescape.dart';
+import 'package:lurkers_for_reddit/helpers/subreddit_helper.dart';
 import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_comments.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
-import 'package:toast/toast.dart';
 
 import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 
@@ -71,6 +73,7 @@ class _SubmissionViewState extends State<SubmissionView> {
               builder: (context) => SubmissionComments(
                     submission: widget.submission,
                     subreddit: widget.subreddit,
+                    subreddits: widget.subreddits,
                   ),
             ),
           );
@@ -111,9 +114,13 @@ class _SubmissionViewState extends State<SubmissionView> {
           },
           key: Key(widget.submission.id),
           child: Card(
-            color: Theme.of(context)
-                .cardColor
-                .withOpacity(widget.submission.visited ? 1 : 0),
+            color: SubredditHelper.getSubColor(
+                widget.subreddits.firstWhere(
+                    (x) =>
+                        (x.runtimeType == Subreddit ? x.displayName : x) ==
+                        widget.submission.subreddit.displayName,
+                    orElse: () => ""),
+                defaultColor: Theme.of(context).cardColor),
             margin: EdgeInsets.all(7),
             child: Padding(
               padding: EdgeInsets.all(3.0),
@@ -126,7 +133,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          Visibility(
+                          vis.Visibility(
                             visible: showThumbnail,
                             child: FadeInImage.memoryNetwork(
                               height: 80.0,
@@ -203,7 +210,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            Visibility(
+                            vis.Visibility(
                               visible: widget.submission.saved,
                               child: Icon(
                                 Icons.star,
@@ -373,7 +380,8 @@ class SubmissionView extends StatefulWidget {
       this.onHide,
       this.onHideUndo,
       this.index,
-      this.subreddit})
+      this.subreddit,
+      this.subreddits})
       : super(key: key);
 
   final Dart.Submission submission;
@@ -381,6 +389,7 @@ class SubmissionView extends StatefulWidget {
   final Function onHideUndo;
   final int index;
   final dynamic subreddit;
+  final List<dynamic> subreddits;
 
   @override
   _SubmissionViewState createState() => _SubmissionViewState();
