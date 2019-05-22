@@ -15,10 +15,12 @@ import 'more_comments_view.dart';
 
 class _SubmissionCommentsState extends State<SubmissionComments> {
   List<CommentAndDepth> _comments = [];
+  bool _loading = false;
 
   @override
   void initState() {
     super.initState();
+    _loading = true;
     widget.submission.refreshComments().then((x) {
       var cmts = widget.submission.comments.comments;
       if (mounted) {
@@ -27,6 +29,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
             addToComments(c);
           });
         });
+        _loading = false;
       }
     });
   }
@@ -78,7 +81,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
             Flexible(
-              child: _comments.length > 0
+              child: _loading ? Center(child: CircularProgressIndicator(),) : _comments.length > 0
                   ? ListView.builder(
                       padding: EdgeInsets.zero,
                       physics: ClampingScrollPhysics(),
