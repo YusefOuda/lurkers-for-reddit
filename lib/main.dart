@@ -52,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   bool _bottomSheetOpen = false;
   Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
   Color _appBarColor;
+  String _searchSubString = '';
 
   List<String> sorts = [
     "hot",
@@ -73,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> {
   _getReorderableSubs() {
     List<Widget> widgets = [];
     _subreddits.forEach((s) {
+      String subName = s.runtimeType == Dart.Subreddit ? s.displayName : s;
       Dart.Subreddit sub;
       String iconImg;
       Color subColor = SubredditHelper.getSubColor(s);
@@ -82,74 +84,78 @@ class _MyHomePageState extends State<MyHomePage> {
           iconImg = sub.data['icon_img'];
         }
       }
-      var widget = Container(
-        constraints: BoxConstraints(maxHeight: 50.0),
-        decoration: BoxDecoration(
-          color: subColor != null ? subColor : Colors.black,
-          border: Border(
-            bottom: BorderSide(color: Colors.white),
+      var widget = Visibility(
+        key: Key(subName),
+        visible:
+            _searchSubString.isEmpty || subName.contains(_searchSubString),
+        child: Container(
+          constraints: BoxConstraints(maxHeight: 50.0),
+          decoration: BoxDecoration(
+            color: subColor != null ? subColor : Colors.black,
+            border: Border(
+              bottom: BorderSide(color: Colors.white),
+            ),
           ),
-        ),
-        key: sub != null ? Key(sub.displayName) : Key(s),
-        child: InkWell(
-          onTap: () {
-            setState(() {
-              _currentSub = sub != null ? sub : s;
-              _appBarColor = SubredditHelper.getSubColor(sub);
-            });
-            globalKey.currentState.newSubSelected(_currentSub);
-            _sheetController.close();
-          },
-          child: Padding(
-            padding: EdgeInsets.all(10.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                sub != null && iconImg != null && iconImg.startsWith('http')
-                    ? FadeInImage.memoryNetwork(
-                        height: 30.0,
-                        width: 30.0,
-                        placeholder: kTransparentImage,
-                        image: iconImg,
-                        fit: BoxFit.cover,
-                      )
-                    : Container(
-                        height: 30.0,
-                        width: 30.0,
-                        color: Colors.black.withOpacity(0),
+          child: InkWell(
+            onTap: () {
+              setState(() {
+                _currentSub = sub != null ? sub : s;
+                _appBarColor = SubredditHelper.getSubColor(sub);
+              });
+              globalKey.currentState.newSubSelected(_currentSub);
+              _sheetController.close();
+            },
+            child: Padding(
+              padding: EdgeInsets.all(10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  sub != null && iconImg != null && iconImg.startsWith('http')
+                      ? FadeInImage.memoryNetwork(
+                          height: 30.0,
+                          width: 30.0,
+                          placeholder: kTransparentImage,
+                          image: iconImg,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          height: 30.0,
+                          width: 30.0,
+                          color: Colors.black.withOpacity(0),
+                        ),
+                  Flexible(
+                    flex: 6,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10.0,
                       ),
-                Flexible(
-                  flex: 6,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 10.0,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          sub != null ? sub.displayName : s,
+                        ),
+                      ),
                     ),
+                  ),
+                  Flexible(
+                    flex: 4,
                     child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        sub != null ? sub.displayName : s,
-                      ),
+                      alignment: Alignment.centerRight,
+                      child: Text(sub != null
+                          ? TextHelper.convertScoreToAbbreviated(
+                                  sub.data['subscribers']) +
+                              ' subs'
+                          : ''),
                     ),
                   ),
-                ),
-                Flexible(
-                  flex: 4,
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(sub != null
-                        ? TextHelper.convertScoreToAbbreviated(
-                                sub.data['subscribers']) +
-                            ' subs'
-                        : ''),
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Icon(Icons.drag_handle),
+                    ),
                   ),
-                ),
-                Flexible(
-                  child: Align(
-                    alignment: Alignment.centerRight,
-                    child: Icon(Icons.drag_handle),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -178,11 +184,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   hintText: 'Enter a subreddit...',
                 ),
                 onChanged: (text) {
-                  print(text);
+                  setState(() {
+                    _sheetController.setState(() {
+                      _searchSubString = text;
+                    });
+                  });
                 },
                 onSubmitted: (text) {
                   setState(() {
                     _currentSub = text;
+                    _searchSubString = '';
                   });
                   globalKey.currentState.newSubSelected(_currentSub);
                   _sheetController.close();
