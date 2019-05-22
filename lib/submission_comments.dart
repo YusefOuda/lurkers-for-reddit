@@ -1,16 +1,20 @@
 import 'package:draw/draw.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lurkers_for_reddit/comment_and_depth.dart';
+import 'package:lurkers_for_reddit/helpers/post_type_helper.dart';
 import 'package:lurkers_for_reddit/helpers/subreddit_helper.dart';
 import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:lurkers_for_reddit/submission_body.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 import 'comment_view.dart';
 import 'more_comments_view.dart';
@@ -18,6 +22,7 @@ import 'more_comments_view.dart';
 class _SubmissionCommentsState extends State<SubmissionComments> {
   List<CommentAndDepth> _comments = [];
   bool _loading = false;
+  WebViewController _webController;
 
   @override
   void initState() {
@@ -34,6 +39,11 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
         _loading = false;
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   addToComments(comment, {index, depth}) {
@@ -174,7 +184,10 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               children: <TextSpan>[
                 TextSpan(
                   text: "/u/${widget.submission.author}",
-                  style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.bold, backgroundColor: Colors.blue.shade600),
+                  style: TextStyle(
+                      fontSize: 11.0,
+                      fontWeight: FontWeight.bold,
+                      backgroundColor: Colors.blue.shade600),
                 ),
                 TextSpan(
                   text: "  •  ",
@@ -264,7 +277,10 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
             ],
           ),
         );
-        if (!widget.submission.isSelf) {
+        var type = PostTypeHelper.getPostType(widget.submission);
+        if (type == PostType.Pic ||
+            type == PostType.Vid ||
+            type == PostType.YouTube) {
           return Scaffold(
             body: NestedScrollView(
               headerSliverBuilder:
@@ -284,7 +300,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               body: body,
             ),
           );
-        } else {
+        } else if (type == PostType.Self) {
           var unescape = HtmlUnescape();
           return Scaffold(
             appBar: AppBar(
@@ -296,45 +312,149 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                       orElse: () => ""),
                   defaultColor: Theme.of(context).cardColor),
             ),
-            body: ListView(
-              children: <Widget>[
-                headerRow,
-                vis.Visibility(
-                  visible: widget.submission.selftext != null &&
-                      widget.submission.selftext.isNotEmpty,
-                  child: Divider(),
-                  replacement: Container(),
-                ),
-                vis.Visibility(
-                  visible: widget.submission.selftext != null &&
-                      widget.submission.selftext.isNotEmpty,
-                  replacement: Container(),
-                  child: Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: MarkdownBody(
-                      styleSheet:
-                          MarkdownStyleSheet.fromTheme(Theme.of(context))
-                              .copyWith(
-                                  blockquoteDecoration: BoxDecoration(
-                                      color: Colors.blueGrey.shade700)),
-                      data: unescape
-                          .convert(widget.submission.selftext ?? "")
-                          .replaceAll('&#x200B;', '\u200b'),
-                      onTapLink: (url) {
-                        _handleLink(url);
-                      },
+            body: RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: ListView(
+                children: <Widget>[
+                  headerRow,
+                  vis.Visibility(
+                    visible: widget.submission.selftext != null &&
+                        widget.submission.selftext.isNotEmpty,
+                    child: Divider(),
+                    replacement: Container(),
+                  ),
+                  vis.Visibility(
+                    visible: widget.submission.selftext != null &&
+                        widget.submission.selftext.isNotEmpty,
+                    replacement: Container(),
+                    child: Padding(
+                      padding: EdgeInsets.all(10.0),
+                      child: MarkdownBody(
+                        styleSheet:
+                            MarkdownStyleSheet.fromTheme(Theme.of(context))
+                                .copyWith(
+                                    blockquoteDecoration: BoxDecoration(
+                                        color: Colors.blueGrey.shade700)),
+                        data: unescape
+                            .convert(widget.submission.selftext ?? "")
+                            .replaceAll('&#x200B;', '\u200b'),
+                        onTapLink: (url) {
+                          _handleLink(url);
+                        },
+                      ),
                     ),
                   ),
+                  body
+                ],
+                shrinkWrap: true,
+                scrollDirection: Axis.vertical,
+              ),
+            ),
+          );
+        } else {
+          return Scaffold(
+            appBar: AppBar(
+              title: Text(
+                widget.submission.subreddit.displayName,
+              ),
+              backgroundColor: SubredditHelper.getSubColor(
+                  widget?.subreddits?.firstWhere(
+                      (x) =>
+                          (x.runtimeType == Subreddit ? x.displayName : x) ==
+                          widget.submission.subreddit.displayName,
+                      orElse: () => ""),
+                  defaultColor: Theme.of(context).cardColor),
+            ),
+            body: ListView(
+              shrinkWrap: true,
+              children: <Widget>[
+                SizedBox(
+                  height: MediaQuery.of(context).size.height -
+                      100 -
+                      AppBar().preferredSize.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: WebView(
+                    onWebViewCreated: (controller) {
+                      _webController = controller;
+                    },
+                    gestureRecognizers: Set()
+                      ..add(Factory<VerticalDragGestureRecognizer>(
+                          () => VerticalDragGestureRecognizer())),
+                    initialUrl: widget.submission.url.toString(),
+                    javascriptMode: JavascriptMode.unrestricted,
+                  ),
                 ),
+                SizedBox(
+                  height: AppBar().preferredSize.height,
+                  width: MediaQuery.of(context).size.width,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_back,
+                        ),
+                        onPressed: () {
+                          if (_webController != null) {
+                            _webController.canGoBack().then((can) {
+                              if (can) {
+                                _webController.goBack();
+                              }
+                            });
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.arrow_forward,
+                        ),
+                        onPressed: () {
+                          if (_webController != null) {
+                            _webController.canGoForward().then((can) {
+                              if (can) {
+                                _webController.goForward();
+                              }
+                            });
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.refresh,
+                        ),
+                        onPressed: () {
+                          if (_webController != null) {
+                            _webController.reload();
+                          }
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.open_in_browser,
+                        ),
+                        onPressed: () {
+                          _webController.currentUrl().then((url) {
+                            _handleLink(url);
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                headerRow,
                 body
               ],
-              shrinkWrap: true,
-              scrollDirection: Axis.vertical,
             ),
           );
         }
       },
     );
+  }
+
+  Future<void> _handleRefresh() async {
+    print('x');
+    return;
   }
 
   _loadMore(id) async {
@@ -368,7 +488,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
 
   _handleLink(url) async {
     if (await canLaunch(url)) {
-      await launch(url);
+      await launch(url, forceWebView: false);
     } else {
       throw "cant open link";
     }

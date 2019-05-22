@@ -14,6 +14,7 @@ class VideoViewer extends StatefulWidget {
 class VideoViewerState extends State<VideoViewer> {
   VideoPlayerController _controller;
   Future<void> _initializeVideoPlayerFuture;
+  Future<void> _initializeAudioPlayerFuture;
   AudioPlayer _audioPlayer;
 
   getAudioUrl() {
@@ -23,12 +24,16 @@ class VideoViewerState extends State<VideoViewer> {
   @override
   void initState() {
     super.initState();
+    initControllers();
+  }
+
+  initControllers() async {
     _controller = VideoPlayerController.network(widget.url);
     _controller.setLooping(true);
     _initializeVideoPlayerFuture = _controller.initialize();
-    _audioPlayer = AudioPlayer();
+    _audioPlayer = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);
     var audioUrl = getAudioUrl();
-    _audioPlayer.setUrl(audioUrl);
+    _initializeAudioPlayerFuture = _audioPlayer.setUrl(audioUrl);
   }
 
   @override
@@ -42,9 +47,12 @@ class VideoViewerState extends State<VideoViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: _initializeVideoPlayerFuture,
+        future: Future.wait([_initializeVideoPlayerFuture,_initializeAudioPlayerFuture]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
+            _audioPlayer.resume();
+            _controller.play();
+
             return Center(
               child: AspectRatio(
                 aspectRatio: _controller.value.aspectRatio,

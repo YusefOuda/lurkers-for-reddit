@@ -86,7 +86,8 @@ class _MyHomePageState extends State<MyHomePage> {
       }
       var widget = Visibility(
         key: Key(subName),
-        visible: _searchSubString.isEmpty || subName.contains(_searchSubString),
+        visible: _searchSubString.isEmpty ||
+            subName.toLowerCase().contains(_searchSubString.toLowerCase()),
         child: Container(
           constraints: BoxConstraints(maxHeight: 50.0),
           decoration: BoxDecoration(
@@ -191,8 +192,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onSubmitted: (text) {
                   setState(() {
-                    _currentSub = text;
-                    _searchSubString = '';
+                    _sheetController.setState(() {
+                      _currentSub = text;
+                      _searchSubString = '';
+                    });
                   });
                   globalKey.currentState.newSubSelected(_currentSub);
                   _sheetController.close();

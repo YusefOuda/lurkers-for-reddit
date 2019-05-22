@@ -1,8 +1,10 @@
-import 'package:draw/draw.dart';
+import 'package:draw/draw.dart' as dart;
 import 'package:flutter/material.dart';
 import 'package:flutter/material.dart' as material;
+import 'package:lurkers_for_reddit/helpers/post_type_helper.dart';
 import 'package:lurkers_for_reddit/post_photo_view.dart';
 import 'package:lurkers_for_reddit/video_viewer.dart';
+import 'package:lurkers_for_reddit/youtube_viewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
@@ -79,33 +81,83 @@ class SubmissionBodyState extends State<SubmissionBody> {
     setState(() {
       imageUrl = getImageUrl();
     });
-    PhotoView photoView;
     String postUrl = widget.submission.url.toString();
-    bool isVid = false;
-    bool isPic = false;
-    if (postUrl.contains('v.redd.it') ||
-        postUrl.contains('streamable') ||
-        postUrl.contains('gfycat')) {
-      isVid = true;
-    }
-    if (widget.submission.url.toString().isNotEmpty &&
-        (widget.submission.url.toString().contains('.mp4') ||
-            widget.submission.url.toString().contains('.gif') ||
-            widget.submission.url.toString().contains('.jpg') ||
-            widget.submission.url.toString().contains('.jpeg') ||
-            widget.submission.url.toString().contains('.png'))) {
-      isPic = true;
-      photoView = PhotoView(
-        gaplessPlayback: true,
-        imageProvider: NetworkImage(imageUrl, headers: null),
-        backgroundDecoration: BoxDecoration(color: Colors.transparent),
+    PostType type = PostTypeHelper.getPostType(widget.submission);
+    var expandedHeight = MediaQuery.of(context).size.height -
+        (MediaQuery.of(context).size.height / 3);
+    Widget background;
+    if (type == PostType.YouTube) {
+      background = YoutubeViewer(
+        url: postUrl,
       );
+    } else if (type == PostType.Vid) {
+      background = FutureBuilder(
+        initialData: "",
+        future: _vidUrl,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return InkWell(
+              onTap: () {
+                if (snapshot.data.isNotEmpty) {
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      opaque: false,
+                      pageBuilder: (BuildContext context, _, __) => VideoViewer(
+                            url: snapshot.data,
+                          ),
+                    ),
+                  );
+                }
+              },
+              child: Center(
+                child: Icon(Icons.play_arrow, size: 100.0),
+              ),
+            );
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
+      );
+    } else if (type == PostType.Pic) {
+      Widget picBackground = CachedNetworkImage(
+        fit: BoxFit.cover,
+        imageUrl: imageUrl,
+        placeholder: (context, url) => Center(
+              child: CircularProgressIndicator(),
+            ),
+        errorWidget: (context, url, error) => Center(
+              child: Icon(Icons.error),
+            ),
+      );
+      background = InkWell(
+          child: picBackground,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                fullscreenDialog: true,
+                builder: (context) => PostPhotoView(
+                      photoView: PhotoView(
+                        gaplessPlayback: true,
+                        imageProvider: NetworkImage(imageUrl, headers: null),
+                        backgroundDecoration:
+                            BoxDecoration(color: Colors.transparent),
+                      ),
+                    ),
+              ),
+            );
+            _handleLink(postUrl, imageUrl);
+          });
     }
-    return SliverAppBar(
+
+    var sliverAppBar = SliverAppBar(
       pinned: false,
       snap: false,
       floating: true,
-      expandedHeight: MediaQuery.of(context).size.height - 400,
+      expandedHeight: expandedHeight,
       title: Text(
         widget.submission.subreddit.displayName,
         maxLines: 1,
@@ -114,68 +166,10 @@ class SubmissionBodyState extends State<SubmissionBody> {
       flexibleSpace: FlexibleSpaceBar(
         centerTitle: true,
         collapseMode: CollapseMode.parallax,
-        background: material.Visibility(
-          replacement: InkWell(
-            child: isPic || imageUrl.isNotEmpty
-                ? CachedNetworkImage(
-                    fit: BoxFit.cover,
-                    imageUrl: imageUrl,
-                    placeholder: (context, url) =>
-                        Center(child: CircularProgressIndicator(),),
-                    errorWidget: (context, url, error) => Center(child: Icon(Icons.error),),
-                  )
-                : Container(),
-            onTap: () {
-              if (photoView != null) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (context) => PostPhotoView(
-                          photoView: photoView,
-                        ),
-                  ),
-                );
-              } else {
-                _handleLink(postUrl, imageUrl);
-              }
-            },
-          ),
-          visible: isVid,
-          child: FutureBuilder(
-            initialData: "",
-            future: _vidUrl,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return InkWell(
-                  onTap: () {
-                    if (isVid && snapshot.data.isNotEmpty) {
-                      Navigator.push(
-                        context,
-                        PageRouteBuilder(
-                          opaque: false,
-                          pageBuilder: (BuildContext context, _, __) =>
-                              VideoViewer(
-                                url: snapshot.data,
-                              ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Center(
-                    child: Icon(Icons.play_arrow, size: 100.0),
-                  ),
-                );
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-        ),
+        background: background,
       ),
     );
+    return sliverAppBar;
   }
 
   _handleLink(url, String imageUrl) async {
@@ -190,7 +184,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
 class SubmissionBody extends StatefulWidget {
   SubmissionBody({Key key, this.submission}) : super(key: key);
 
-  final Submission submission;
+  final dart.Submission submission;
 
   @override
   SubmissionBodyState createState() => SubmissionBodyState();
