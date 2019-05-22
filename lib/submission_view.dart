@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:draw/draw.dart' as Dart;
+import 'package:html_unescape/html_unescape.dart';
 import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_comments.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -14,13 +15,14 @@ class _SubmissionViewState extends State<SubmissionView> {
   Widget build(BuildContext context) {
     var thumb = widget.submission.thumbnail;
     bool showThumbnail = thumb != null && thumb.scheme.startsWith('http');
+    var unescape = HtmlUnescape();
     return IntrinsicHeight(
       child: InkWell(
         onLongPress: () {
           if (redditSession.user == null) {
             Scaffold.of(context).hideCurrentSnackBar();
             Scaffold.of(context).showSnackBar(new SnackBar(
-              content: new Text("You must be logged in to do that!"),
+              content: Text("You must be logged in to do that!"),
             ));
           } else if (!widget.submission.saved) {
             widget.submission.save().then((x) {
@@ -28,7 +30,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                 setState(() {});
                 Scaffold.of(context).hideCurrentSnackBar();
                 Scaffold.of(context).showSnackBar(new SnackBar(
-                  content: new Text("Post saved succesfully"),
+                  content: Text("Post saved succesfully"),
                 ));
               });
             });
@@ -38,7 +40,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                 setState(() {});
                 Scaffold.of(context).hideCurrentSnackBar();
                 Scaffold.of(context).showSnackBar(new SnackBar(
-                  content: new Text("Post unsaved succesfully"),
+                  content: Text("Post unsaved succesfully"),
                 ));
               });
             });
@@ -50,6 +52,7 @@ class _SubmissionViewState extends State<SubmissionView> {
             MaterialPageRoute(
               builder: (context) => SubmissionComments(
                     submission: widget.submission,
+                    subreddit: widget.subreddit,
                   ),
             ),
           );
@@ -59,7 +62,7 @@ class _SubmissionViewState extends State<SubmissionView> {
             if (redditSession.user == null) {
               Scaffold.of(context).hideCurrentSnackBar();
               Scaffold.of(context).showSnackBar(new SnackBar(
-                content: new Text("You must be logged in to do that!"),
+                content: Text("You must be logged in to do that!"),
               ));
               return Future.value(false);
             }
@@ -74,7 +77,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                 setState(() {
                   Scaffold.of(context).showSnackBar(new SnackBar(
                     duration: Duration(seconds: 6),
-                    content: new Text("Post hidden succesfully"),
+                    content: Text("Post hidden succesfully"),
                     action: SnackBarAction(
                       label: "Undo",
                       onPressed: () {
@@ -153,7 +156,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                                 text: TextSpan(
                                   children: <TextSpan>[
                                     TextSpan(
-                                      text: widget.submission.title,
+                                      text: unescape.convert(widget.submission.title),
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline
@@ -237,7 +240,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                             if (redditSession.user == null) {
                               Scaffold.of(context).hideCurrentSnackBar();
                               Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: new Text(
+                                content: Text(
                                     "You must be logged in to do that!"),
                               ));
                               return;
@@ -272,7 +275,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                             if (redditSession.user == null) {
                               Scaffold.of(context).hideCurrentSnackBar();
                               Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: new Text(
+                                content: Text(
                                     "You must be logged in to do that!"),
                               ));
                               return;
@@ -301,13 +304,14 @@ class _SubmissionViewState extends State<SubmissionView> {
 
 class SubmissionView extends StatefulWidget {
   SubmissionView(
-      {Key key, this.submission, this.onHide, this.onHideUndo, this.index})
+      {Key key, this.submission, this.onHide, this.onHideUndo, this.index, this.subreddit})
       : super(key: key);
 
   final Dart.Submission submission;
   final Function onHide;
   final Function onHideUndo;
   final int index;
+  final dynamic subreddit;
 
   @override
   _SubmissionViewState createState() => _SubmissionViewState();

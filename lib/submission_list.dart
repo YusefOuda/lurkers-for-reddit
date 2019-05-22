@@ -1,7 +1,6 @@
 import 'package:draw/draw.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as prefix0;
 import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_view.dart';
 
@@ -64,8 +63,8 @@ class SubmissionListState extends State<SubmissionList> {
         _loading = false;
         _submissions.clear();
       });
-      Scaffold.of(context).showSnackBar(new SnackBar(
-        content: new Text("Could not load submissions"),
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Could not load submissions"),
       ));
     });
   }
@@ -148,6 +147,7 @@ class SubmissionListState extends State<SubmissionList> {
                     index: index,
                     onHide: _onHide,
                     onHideUndo: _onHideUndo,
+                    subreddit: widget.sub,
                   );
                 }, childCount: _submissions.length),
               ),

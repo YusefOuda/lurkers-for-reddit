@@ -8,7 +8,7 @@ import 'package:url_launcher/url_launcher.dart';
 class _CommentViewState extends State<CommentView> {
   @override
   Widget build(BuildContext context) {
-    var unescape = new HtmlUnescape();
+    var unescape = HtmlUnescape();
     return Container(
       margin: EdgeInsets.only(left: (widget.depth * 8.0)),
       decoration: BoxDecoration(
@@ -44,19 +44,30 @@ class _CommentViewState extends State<CommentView> {
                           .textTheme
                           .caption
                           .copyWith(fontSize: 11.0)),
-                  Text(widget.comment.authorFlairText != null && widget.comment.authorFlairText.isNotEmpty ? "  •  " : ""),
-                  Text(
+                  Text(widget.comment.authorFlairText != null &&
+                          widget.comment.authorFlairText.isNotEmpty
+                      ? "  •  "
+                      : ""),
+                  Expanded(
+                    flex: 8,
+                    child: Text(
                       "${widget.comment.authorFlairText != null ? widget.comment.authorFlairText : ""}",
-                      style: Theme.of(context)
-                          .textTheme
-                          .caption
-                          .copyWith(fontSize: 11.0, backgroundColor: Colors.blue.shade900), ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.caption.copyWith(
+                          fontSize: 11.0,
+                          backgroundColor: Colors.blue.shade900),
+                    ),
+                  ),
                   Spacer(),
                   Visibility(
                     visible: widget.childrenCollapsed,
-                    child: Text(
-                      "+" + widget.numChildren.toString(),
-                      style: TextStyle(backgroundColor: Colors.greenAccent),
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 4.0),
+                      child: Text(
+                        "+" + widget.numChildren.toString(),
+                        style: TextStyle(backgroundColor: Colors.greenAccent),
+                      ),
                     ),
                     replacement: Container(),
                   ),
@@ -71,7 +82,7 @@ class _CommentViewState extends State<CommentView> {
                               .copyWith(
                                   blockquoteDecoration: BoxDecoration(
                                       color: Colors.blueGrey.shade700)),
-                      data: unescape.convert(widget.comment.body),
+                      data: unescape.convert(widget.comment.body).replaceAll('&#x200B;', '\u200b'),
                       onTapLink: (url) {
                         _handleLink(url);
                       },

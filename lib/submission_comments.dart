@@ -3,6 +3,7 @@ import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/rendering.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:lurkers_for_reddit/comment_and_depth.dart';
+import 'package:lurkers_for_reddit/helpers/subreddit_helper.dart';
 import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:lurkers_for_reddit/submission_body.dart';
@@ -157,20 +158,25 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                         var subtitle = RichText(
                           text: TextSpan(
                             children: <TextSpan>[
-                              TextSpan(text: "/u/${widget.submission.author}"),
-                              TextSpan(text: "  •  "),
+                              TextSpan(
+                                text: "/u/${widget.submission.author}",
+                                style: TextStyle(fontSize: 10.0),
+                              ),
+                              TextSpan(
+                                text: "  •  ",
+                                style: TextStyle(fontSize: 10.0),
+                              ),
                               TextSpan(
                                 text:
-                                    "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
+                                    "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago",
+                                style: TextStyle(fontSize: 10.0),
                               ),
-                              TextSpan(text: "  •  "),
                               TextSpan(
-                                  text:
-                                      "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago"),
-                              TextSpan(
-                                  text: widget.submission.linkFlairText != null
-                                      ? "  •  "
-                                      : ""),
+                                text: widget.submission.linkFlairText != null
+                                    ? "  •  "
+                                    : "",
+                                style: TextStyle(fontSize: 10.0),
+                              ),
                               TextSpan(
                                   text: widget.submission.linkFlairText != null
                                       ? widget.submission.linkFlairText
@@ -181,12 +187,71 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                             ],
                           ),
                         );
-                        return ListTile(
-                            title: Text(
-                              widget.submission.title,
-                              style: Theme.of(context).textTheme.headline,
+                        return Row(
+                          children: <Widget>[
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: <Widget>[
+                                  Flexible(
+                                    child: Text(
+                                      TextHelper.convertScoreToAbbreviated(
+                                          widget.submission.score),
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle
+                                          .copyWith(
+                                              color: Colors.deepOrangeAccent,
+                                              fontSize: 14.0),
+                                    ),
+                                  ),
+                                  Divider(),
+                                  Flexible(
+                                    child: Text(
+                                      widget.submission.numComments.toString() +
+                                          ' comments',
+                                      overflow: TextOverflow.clip,
+                                      textAlign: TextAlign.center,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .subtitle
+                                          .copyWith(
+                                              color: Colors.deepOrangeAccent,
+                                              fontSize: 9.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                            subtitle: subtitle);
+                            Spacer(),
+                            Expanded(
+                              flex: 30,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Flexible(
+                                    child: Text(
+                                      widget.submission.title,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headline
+                                          .copyWith(fontSize: 20.0),
+                                    ),
+                                  ),
+                                  Flexible(
+                                    child: subtitle,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
                       },
                       childCount: 1,
                     ),
@@ -199,13 +264,28 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
         } else {
           var unescape = HtmlUnescape();
           return Scaffold(
-            appBar: AppBar(),
+            appBar: AppBar(
+              backgroundColor: SubredditHelper.getSubColor(widget.subreddit),
+            ),
             body: ListView(
               children: <Widget>[
-                Center(
-                  child: Text(widget.submission.title,
-                      style: Theme.of(context).textTheme.headline),
+                Row(
+                  children: <Widget>[
+                    Flexible(
+                      child: Padding(
+                        padding: EdgeInsets.all(7.0),
+                        child: Text(
+                          unescape.convert(widget.submission.title),
+                          style: Theme.of(context)
+                              .textTheme
+                              .subtitle
+                              .copyWith(fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                Divider(),
                 Padding(
                   padding: EdgeInsets.all(10.0),
                   child: MarkdownBody(
@@ -213,7 +293,9 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                         .copyWith(
                             blockquoteDecoration:
                                 BoxDecoration(color: Colors.blueGrey.shade700)),
-                    data: unescape.convert(widget.submission.selftext ?? ""),
+                    data: unescape
+                        .convert(widget.submission.selftext ?? "")
+                        .replaceAll('&#x200B;', '\u200b'),
                     onTapLink: (url) {
                       _handleLink(url);
                     },
@@ -270,9 +352,11 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
 }
 
 class SubmissionComments extends StatefulWidget {
-  SubmissionComments({Key key, this.submission}) : super(key: key);
+  SubmissionComments({Key key, this.submission, this.subreddit})
+      : super(key: key);
 
   final Dart.Submission submission;
+  final dynamic subreddit;
 
   @override
   _SubmissionCommentsState createState() => _SubmissionCommentsState();

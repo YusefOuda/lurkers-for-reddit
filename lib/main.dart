@@ -1,5 +1,6 @@
 import 'package:draw/draw.dart' as Dart;
 import 'package:flutter/material.dart';
+import 'package:lurkers_for_reddit/helpers/subreddit_helper.dart';
 import 'package:lurkers_for_reddit/helpers/user_hint_helper.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'helpers/text_helper.dart';
@@ -42,7 +43,7 @@ class MyHomePage extends StatefulWidget {
 GlobalKey<SubmissionListState> globalKey = GlobalKey();
 
 class _MyHomePageState extends State<MyHomePage> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   PersistentBottomSheetController _sheetController;
   String _userNameText = redditSession?.user?.displayName ?? "";
   List<dynamic> _subreddits = List<dynamic>();
@@ -69,25 +70,12 @@ class _MyHomePageState extends State<MyHomePage> {
         (_) => UserHintHelper.showHintsIfNecessary(_scaffoldKey));
   }
 
-  Color _getSubColor(sub) {
-    String subColorHex;
-    if (sub.runtimeType != Dart.Subreddit) return Colors.black12;
-
-    if (sub.data['primary_color'] != null) {
-      subColorHex = sub.data['primary_color'];
-      subColorHex = subColorHex.replaceAll('#', '');
-      var subColorInt = int.parse("0xFF$subColorHex");
-      return Color(subColorInt).withOpacity(1.0);
-    }
-    return Colors.black12;
-  }
-
   _getReorderableSubs() {
     List<Widget> widgets = [];
     _subreddits.forEach((s) {
       Dart.Subreddit sub;
       String iconImg;
-      Color subColor = _getSubColor(s);
+      Color subColor = SubredditHelper.getSubColor(s);
       if (s.runtimeType == Dart.Subreddit) {
         sub = s as Dart.Subreddit;
         if (sub.data['icon_img'] != null) {
@@ -97,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       var widget = Container(
         constraints: BoxConstraints(maxHeight: 50.0),
         decoration: BoxDecoration(
-          color: subColor != null ? subColor.withOpacity(0.5) : Colors.black,
+          color: subColor != null ? subColor : Colors.black,
           border: Border(
             bottom: BorderSide(color: Colors.white),
           ),
@@ -107,7 +95,7 @@ class _MyHomePageState extends State<MyHomePage> {
           onTap: () {
             setState(() {
               _currentSub = sub != null ? sub : s;
-              _appBarColor = _getSubColor(sub).withOpacity(0.5);
+              _appBarColor = SubredditHelper.getSubColor(sub);
             });
             globalKey.currentState.newSubSelected(_currentSub);
             _sheetController.close();
@@ -189,6 +177,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 decoration: InputDecoration(
                   hintText: 'Enter a subreddit...',
                 ),
+                onChanged: (text) {
+                  print(text);
+                },
                 onSubmitted: (text) {
                   setState(() {
                     _currentSub = text;
@@ -215,8 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       children: _getReorderableSubs(),
                     )
                   : Center(
-                      child: Text("Subreddits are loading...",
-                          style: Theme.of(context).textTheme.headline),
+                      child: CircularProgressIndicator(),
                     ),
             ),
           ],

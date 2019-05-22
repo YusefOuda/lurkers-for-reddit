@@ -26,7 +26,7 @@ class VideoViewerState extends State<VideoViewer> {
     _controller = VideoPlayerController.network(widget.url);
     _controller.setLooping(true);
     _initializeVideoPlayerFuture = _controller.initialize();
-    _audioPlayer = new AudioPlayer();
+    _audioPlayer = AudioPlayer();
     var audioUrl = getAudioUrl();
     _audioPlayer.setUrl(audioUrl);
   }

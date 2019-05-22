@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SubmissionBodyState extends State<SubmissionBody> {
   Future<String> _vidUrl;
@@ -115,9 +116,12 @@ class SubmissionBodyState extends State<SubmissionBody> {
         background: material.Visibility(
           replacement: InkWell(
             child: isPic || imageUrl.isNotEmpty
-                ? Image.network(
-                    imageUrl,
+                ? CachedNetworkImage(
                     fit: BoxFit.cover,
+                    imageUrl: imageUrl,
+                    placeholder: (context, url) =>
+                        Center(child: CircularProgressIndicator(),),
+                    errorWidget: (context, url, error) => Center(child: Icon(Icons.error),),
                   )
                 : Container(),
             onTap: () {
