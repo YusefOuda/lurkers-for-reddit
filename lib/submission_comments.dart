@@ -385,7 +385,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   ),
                 ),
                 SizedBox(
-                  height: AppBar().preferredSize.height,
+                  height: 80 - MediaQuery.of(context).padding.top,
                   width: MediaQuery.of(context).size.width,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -442,6 +442,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                     ],
                   ),
                 ),
+                SizedBox(height: 20, width: MediaQuery.of(context).size.width, child: Center(child:Icon(Icons.keyboard_arrow_up),),),
                 headerRow,
                 body
               ],
