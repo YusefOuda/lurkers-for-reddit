@@ -9,7 +9,8 @@ class RedditSession {
   static final _userCredKey = "userCreds";
   static final _clientId = "iC80jTVJZ9URdA";
   static final _clientSecret = "";
-  static final _userAgent = "android:com.yusefouda.lurkers:v0.1.0 (by /u/lurkers-for-reddit)";
+  static final _userAgent =
+      "android:com.yusefouda.lurkers:v0.1.0 (by /u/lurkers-for-reddit)";
   static final _redirectUri = Uri.parse("comyusefoudalurkersforreddit://auth");
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
@@ -79,6 +80,12 @@ class RedditSession {
     var sp = await SharedPreferences.getInstance();
     subNameList = sp.getStringList('subreddits');
     bool noSavedSubs = subNameList == null;
+
+    await reddit.user.multireddits().then((list) {
+      list.forEach((m) {
+        subs.add("/m/${m.displayName}");
+      });
+    });
 
     await for (final sub in reddit.user.subreddits(limit: 99999)) {
       subs.add(sub);

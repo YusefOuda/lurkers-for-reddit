@@ -46,8 +46,14 @@ class SubmissionListState extends State<SubmissionList> {
     var params = <String, String>{};
     params['limit'] = limit;
     params['after'] = after;
-    var subName = sub.runtimeType == Subreddit ? sub.displayName : sub;
-    var subString = subName == "frontpage" ? "" : "/r/$subName";
+    String subName = sub.runtimeType == Subreddit ? sub.displayName : sub;
+    bool isMulti = subName.startsWith('/m/');
+    String subString;
+    if (isMulti) {
+      subString = '/me$subName';
+    } else {
+      subString = subName == "frontpage" ? "" : "/r/$subName";
+    }
     _loading = true;
     redditSession.reddit.get("$subString/$sort", params: params).then((result) {
       var x = List<Submission>.from(result['listing']);
