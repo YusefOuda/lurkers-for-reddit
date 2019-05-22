@@ -141,11 +141,13 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                                 },
                                 child: vis.Visibility(
                                   child: CommentView(
-                                      comment: commentAndDepth.comment,
-                                      depth: commentAndDepth.depth,
-                                      childrenCollapsed:
-                                          commentAndDepth.childrenCollapsed,
-                                      numChildren: commentAndDepth.numChildren),
+                                    comment: commentAndDepth.comment,
+                                    depth: commentAndDepth.depth,
+                                    childrenCollapsed:
+                                        commentAndDepth.childrenCollapsed,
+                                    numChildren: commentAndDepth.numChildren,
+                                    submission: widget.submission,
+                                  ),
                                   visible: commentAndDepth.visible,
                                   replacement: Container(),
                                 ),
@@ -172,7 +174,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               children: <TextSpan>[
                 TextSpan(
                   text: "/u/${widget.submission.author}",
-                  style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 11.0, fontWeight: FontWeight.bold, backgroundColor: Colors.blue.shade600),
                 ),
                 TextSpan(
                   text: "  •  ",

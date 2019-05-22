@@ -120,7 +120,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         (x.runtimeType == Subreddit ? x.displayName : x) ==
                         widget.submission.subreddit.displayName,
                     orElse: () => ""),
-                defaultColor: Theme.of(context).cardColor),
+                defaultColor: Theme.of(context).cardColor, opacity: 0.3),
             margin: EdgeInsets.all(7),
             child: Padding(
               padding: EdgeInsets.all(3.0),

@@ -1,5 +1,8 @@
+import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
+import 'package:lurkers_for_reddit/helpers/comment_helper.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:html_unescape/html_unescape.dart';
@@ -15,21 +18,28 @@ class _CommentViewState extends State<CommentView> {
           border: Border(bottom: BorderSide(color: Colors.black))),
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.black45,
-            border: Border(left: BorderSide(color: _getBorderSideColor()))),
-        padding: EdgeInsets.only(left: 4.0),
+          color: Theme.of(context).cardColor,
+          border: Border(
+            left: BorderSide(
+              color: CommentHelper.getBorderSideColor(widget.depth),
+            ),
+          ),
+        ),
+        padding: EdgeInsets.only(left: 6.0, right: 4.0),
         child: Padding(
-          padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+          padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
           child: Column(
             children: <Widget>[
               Row(
                 children: <Widget>[
                   Text(
                     "/u/${widget.comment.author}",
-                    style: Theme.of(context)
-                        .textTheme
-                        .subtitle
-                        .copyWith(fontSize: 11.0),
+                    style: Theme.of(context).textTheme.subtitle.copyWith(
+                        fontSize: 11.0,
+                        backgroundColor:
+                            widget.comment.author == widget.submission.author
+                                ? Colors.blue.shade600
+                                : null),
                   ),
                   Text("  •  "),
                   Text("${widget.comment.score} points",
@@ -60,7 +70,7 @@ class _CommentViewState extends State<CommentView> {
                     ),
                   ),
                   Spacer(),
-                  Visibility(
+                  vis.Visibility(
                     visible: widget.childrenCollapsed,
                     child: Padding(
                       padding: EdgeInsets.only(right: 4.0),
@@ -82,7 +92,9 @@ class _CommentViewState extends State<CommentView> {
                               .copyWith(
                                   blockquoteDecoration: BoxDecoration(
                                       color: Colors.blueGrey.shade700)),
-                      data: unescape.convert(widget.comment.body).replaceAll('&#x200B;', '\u200b'),
+                      data: unescape
+                          .convert(widget.comment.body)
+                          .replaceAll('&#x200B;', '\u200b'),
                       onTapLink: (url) {
                         _handleLink(url);
                       },
@@ -95,22 +107,6 @@ class _CommentViewState extends State<CommentView> {
         ),
       ),
     );
-  }
-
-  _getBorderSideColor() {
-    var colors = [
-      Colors.white,
-      Colors.lightBlue,
-      Colors.lightGreen,
-      Colors.orange,
-      Colors.pink,
-      Colors.purple,
-      Colors.yellow,
-      Colors.amber,
-      Colors.cyan,
-      Colors.red
-    ];
-    return colors[widget.depth % colors.length];
   }
 
   _handleLink(url) async {
@@ -128,13 +124,15 @@ class CommentView extends StatefulWidget {
       this.comment,
       this.depth,
       this.childrenCollapsed,
-      this.numChildren})
+      this.numChildren,
+      this.submission})
       : super(key: key);
 
   final Dart.Comment comment;
   final int depth;
   final bool childrenCollapsed;
   final int numChildren;
+  final Submission submission;
 
   @override
   _CommentViewState createState() => _CommentViewState();
