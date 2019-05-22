@@ -35,7 +35,7 @@ class SubmissionListState extends State<SubmissionList> {
 
   void _scrollListener() {
     if (controller.position.pixels + controller.position.viewportDimension >
-            controller.position.maxScrollExtent &&
+            (controller.position.maxScrollExtent - controller.position.viewportDimension / 2) &&
         !_loading) {
       getMoreSubmissions(sub: _sub, after: _after, sort: _sort);
     }
