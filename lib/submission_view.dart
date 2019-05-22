@@ -5,12 +5,30 @@ import 'package:lurkers_for_reddit/main.dart';
 import 'package:lurkers_for_reddit/submission_comments.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
+import 'package:toast/toast.dart';
 
 import 'package:lurkers_for_reddit/helpers/text_helper.dart';
 
 class _SubmissionViewState extends State<SubmissionView> {
-  Color upvoteColor = Colors.white;
-  Color downvoteColor = Colors.white;
+  Color _upvoteColor = _defaultNonevoteColor;
+  Color _downvoteColor = _defaultNonevoteColor;
+  int _score;
+  static Color _defaultUpvoteColor = Colors.orange;
+  static Color _defaultDownvoteColor = Colors.blue;
+  static Color _defaultNonevoteColor = Colors.white;
+
+  @override
+  void initState() {
+    if (widget.submission.vote == Dart.VoteState.downvoted) {
+      _downvoteColor = _defaultDownvoteColor;
+    } else if (widget.submission.vote == Dart.VoteState.upvoted) {
+      _upvoteColor = _defaultUpvoteColor;
+    }
+
+    _score = widget.submission.score ?? 0;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     var thumb = widget.submission.thumbnail;
@@ -93,6 +111,9 @@ class _SubmissionViewState extends State<SubmissionView> {
           },
           key: Key(widget.submission.id),
           child: Card(
+            color: Theme.of(context)
+                .cardColor
+                .withOpacity(widget.submission.visited ? 1 : 0),
             margin: EdgeInsets.all(7),
             child: Padding(
               padding: EdgeInsets.all(3.0),
@@ -156,7 +177,8 @@ class _SubmissionViewState extends State<SubmissionView> {
                                 text: TextSpan(
                                   children: <TextSpan>[
                                     TextSpan(
-                                      text: unescape.convert(widget.submission.title),
+                                      text: unescape
+                                          .convert(widget.submission.title),
                                       style: Theme.of(context)
                                           .textTheme
                                           .headline
@@ -233,29 +255,50 @@ class _SubmissionViewState extends State<SubmissionView> {
                           iconSize: 3.0,
                           icon: Icon(
                             Icons.arrow_upward,
-                            color: upvoteColor,
+                            color: _upvoteColor,
                             size: 24.0,
                           ),
                           onPressed: () {
                             if (redditSession.user == null) {
                               Scaffold.of(context).hideCurrentSnackBar();
-                              Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: Text(
-                                    "You must be logged in to do that!"),
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content:
+                                    Text("You must be logged in to do that!"),
                               ));
                               return;
                             }
-                            setState(() {
-                              upvoteColor = Colors.orange;
-                              downvoteColor = Colors.white;
-                            });
-                            widget.submission.downvote().then((x) {
-                              print("upvoted");
-                            });
+                            if (widget.submission.vote ==
+                                Dart.VoteState.upvoted) {
+                              widget.submission.clearVote().then((x) {
+                                setState(() {
+                                  _upvoteColor = _defaultNonevoteColor;
+                                  _downvoteColor = _defaultNonevoteColor;
+                                  _score--;
+                                });
+                              }).catchError((e) {
+                                Scaffold.of(context).hideCurrentSnackBar();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Vote failed. You're doing that too fast!")));
+                              });
+                            } else {
+                              widget.submission.upvote().then((x) {
+                                setState(() {
+                                  _upvoteColor = _defaultUpvoteColor;
+                                  _downvoteColor = _defaultNonevoteColor;
+                                  _score++;
+                                });
+                              }).catchError((e) {
+                                Scaffold.of(context).hideCurrentSnackBar();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Vote failed. You're doing that too fast!")));
+                              });
+                            }
                           },
                         ),
                         Text(
-                          "${TextHelper.convertScoreToAbbreviated(widget.submission.score)}",
+                          "${TextHelper.convertScoreToAbbreviated(_score)}",
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           style: Theme.of(context).textTheme.caption.copyWith(
@@ -268,25 +311,46 @@ class _SubmissionViewState extends State<SubmissionView> {
                           iconSize: 3.0,
                           icon: Icon(
                             Icons.arrow_downward,
-                            color: downvoteColor,
+                            color: _downvoteColor,
                             size: 24.0,
                           ),
                           onPressed: () {
                             if (redditSession.user == null) {
                               Scaffold.of(context).hideCurrentSnackBar();
-                              Scaffold.of(context).showSnackBar(new SnackBar(
-                                content: Text(
-                                    "You must be logged in to do that!"),
+                              Scaffold.of(context).showSnackBar(SnackBar(
+                                content:
+                                    Text("You must be logged in to do that!"),
                               ));
                               return;
                             }
-                            setState(() {
-                              upvoteColor = Colors.white;
-                              downvoteColor = Colors.blue;
-                            });
-                            widget.submission.downvote().then((x) {
-                              print("downvoted");
-                            });
+                            if (widget.submission.vote ==
+                                Dart.VoteState.downvoted) {
+                              widget.submission.clearVote().then((x) {
+                                setState(() {
+                                  _upvoteColor = _defaultNonevoteColor;
+                                  _downvoteColor = _defaultNonevoteColor;
+                                  _score++;
+                                });
+                              }).catchError((e) {
+                                Scaffold.of(context).hideCurrentSnackBar();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Vote failed. You're doing that too fast!")));
+                              });
+                            } else {
+                              widget.submission.downvote().then((x) {
+                                setState(() {
+                                  _upvoteColor = _defaultNonevoteColor;
+                                  _downvoteColor = _defaultDownvoteColor;
+                                  _score--;
+                                });
+                              }).catchError((e) {
+                                Scaffold.of(context).hideCurrentSnackBar();
+                                Scaffold.of(context).showSnackBar(SnackBar(
+                                    content: Text(
+                                        "Vote failed. You're doing that too fast!")));
+                              });
+                            }
                           },
                         ),
                       ],
@@ -304,7 +368,12 @@ class _SubmissionViewState extends State<SubmissionView> {
 
 class SubmissionView extends StatefulWidget {
   SubmissionView(
-      {Key key, this.submission, this.onHide, this.onHideUndo, this.index, this.subreddit})
+      {Key key,
+      this.submission,
+      this.onHide,
+      this.onHideUndo,
+      this.index,
+      this.subreddit})
       : super(key: key);
 
   final Dart.Submission submission;

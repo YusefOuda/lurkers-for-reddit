@@ -9,7 +9,7 @@ class RedditSession {
   static final _userCredKey = "userCreds";
   static final _clientId = "iC80jTVJZ9URdA";
   static final _clientSecret = "";
-  static final _userAgent = "Lurkers-for-Reddit by /u/lurkers-for-reddit";
+  static final _userAgent = "android:com.yusefouda.lurkers:v0.1.0 (by /u/lurkers-for-reddit)";
   static final _redirectUri = Uri.parse("comyusefoudalurkersforreddit://auth");
   DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 
