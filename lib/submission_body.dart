@@ -98,6 +98,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
       photoView = PhotoView(
         gaplessPlayback: true,
         imageProvider: NetworkImage(imageUrl, headers: null),
+        backgroundDecoration: BoxDecoration(color: Colors.transparent),
       );
     }
     return SliverAppBar(
@@ -129,6 +130,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
+                    fullscreenDialog: true,
                     builder: (context) => PostPhotoView(
                           photoView: photoView,
                         ),
