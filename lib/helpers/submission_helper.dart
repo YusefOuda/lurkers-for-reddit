@@ -5,11 +5,19 @@ class SubmissionHelper {
 
     if (submission.variants.length > 0) {
       var gifVariant = submission.variants
-          .firstWhere((x) => x.containsKey('gif'))
+          .firstWhere((x) => x['gif'] != null)
           .values
           .toList()[0];
       if (gifVariant != null) {
         imageUrl = gifVariant.source.url.toString();
+      } else {
+        var mp4Variant = submission.variants
+          .firstWhere((x) => x['mp4'] != null)
+          .values
+          .toList()[0];
+          if (mp4Variant != null) {
+            imageUrl = mp4Variant;
+          }
       }
     } else if (submission.url.toString().contains('.jpg') ||
         submission.url.toString().contains('.jpeg') ||

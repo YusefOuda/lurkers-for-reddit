@@ -61,6 +61,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
     Widget background;
     if (type == PostType.YouTube) {
       background = YoutubeViewer(
+        autoplay: false,
         url: postUrl,
       );
     } else if (type == PostType.Vid) {

@@ -7,17 +7,18 @@ class YoutubeViewerState extends State<YoutubeViewer> {
     return YoutubePlayer(
       context: context,
       videoId: YoutubePlayer.convertUrlToId(widget.url),
-      autoPlay: false,
+      autoPlay: widget.autoplay,
       showVideoProgressIndicator: true,
+
     );
   }
 }
 
 class YoutubeViewer extends StatefulWidget {
-  YoutubeViewer({this.url});
+  YoutubeViewer({this.url, this.autoplay});
 
   final String url;
-
+  final bool autoplay;
   @override
   YoutubeViewerState createState() => YoutubeViewerState();
 }

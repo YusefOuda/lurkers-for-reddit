@@ -99,6 +99,9 @@ class _MyHomePageState extends State<MyHomePage> {
           child: InkWell(
             onTap: () {
               setState(() {
+                _sheetController.setState(() {
+                  _searchSubString = '';
+                });
                 _currentSub = sub != null ? sub : s;
                 _appBarColor = SubredditHelper.getSubColor(sub);
               });
