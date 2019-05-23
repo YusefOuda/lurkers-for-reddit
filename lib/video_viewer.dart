@@ -29,9 +29,9 @@ class VideoViewerState extends State<VideoViewer> {
 
   initControllers() async {
     _controller = VideoPlayerController.network(widget.url);
-    _controller.setLooping(true);
     _initializeVideoPlayerFuture = _controller.initialize();
-    _audioPlayer = AudioPlayer(mode: PlayerMode.MEDIA_PLAYER);
+    _audioPlayer = AudioPlayer();
+    _audioPlayer.setReleaseMode(ReleaseMode.STOP);
     var audioUrl = getAudioUrl();
     _initializeAudioPlayerFuture = _audioPlayer.setUrl(audioUrl);
   }
@@ -47,12 +47,10 @@ class VideoViewerState extends State<VideoViewer> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: Future.wait([_initializeVideoPlayerFuture,_initializeAudioPlayerFuture]),
+        future: Future.wait(
+            [_initializeVideoPlayerFuture, _initializeAudioPlayerFuture]),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            _audioPlayer.resume();
-            _controller.play();
-
             return Center(
               child: AspectRatio(
                 aspectRatio: _controller.value.aspectRatio,
@@ -66,20 +64,26 @@ class VideoViewerState extends State<VideoViewer> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            if (_controller.value.isPlaying) {
-              _controller.pause();
-              _audioPlayer.pause();
-            } else {
-              _audioPlayer.resume();
-              _controller.play();
-            }
-          });
+          _handlePlay();
         },
         child: Icon(
           _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
         ),
       ),
     );
+  }
+
+  void _handlePlay() async {
+    if (_controller.value.isPlaying) {
+      _audioPlayer.pause();
+      setState(() {
+        _controller.pause();
+      });
+    } else {
+      _audioPlayer.resume();
+      setState(() {
+        _controller.play();
+      });
+    }
   }
 }
