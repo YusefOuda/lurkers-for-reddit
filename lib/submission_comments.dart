@@ -197,6 +197,15 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   style: TextStyle(fontSize: 10.0),
                 ),
                 TextSpan(
+                  text: "  •  ",
+                  style: TextStyle(fontSize: 10.0),
+                ),
+                TextSpan(
+                  text:
+                      "${widget.submission.domain}",
+                  style: TextStyle(fontSize: 10.0),
+                ),
+                TextSpan(
                   text: widget.submission.linkFlairText != null ? "  •  " : "",
                   style: TextStyle(fontSize: 10.0),
                 ),
@@ -305,7 +314,9 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               backgroundColor: SubredditHelper.getSubColor(
                   widget?.subreddits?.firstWhere(
                       (x) =>
-                          (x.runtimeType == Dart.Subreddit ? x.displayName : x) ==
+                          (x.runtimeType == Dart.Subreddit
+                              ? x.displayName
+                              : x) ==
                           widget.submission.subreddit.displayName,
                       orElse: () => ""),
                   defaultColor: Theme.of(context).cardColor),
@@ -358,7 +369,9 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
               backgroundColor: SubredditHelper.getSubColor(
                   widget?.subreddits?.firstWhere(
                       (x) =>
-                          (x.runtimeType == Dart.Subreddit ? x.displayName : x) ==
+                          (x.runtimeType == Dart.Subreddit
+                              ? x.displayName
+                              : x) ==
                           widget.submission.subreddit.displayName,
                       orElse: () => ""),
                   defaultColor: Theme.of(context).cardColor),
@@ -440,7 +453,13 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                     ],
                   ),
                 ),
-                SizedBox(height: 20, width: MediaQuery.of(context).size.width, child: Center(child:Icon(Icons.keyboard_arrow_up),),),
+                SizedBox(
+                  height: 20,
+                  width: MediaQuery.of(context).size.width,
+                  child: Center(
+                    child: Icon(Icons.keyboard_arrow_up),
+                  ),
+                ),
                 headerRow,
                 body
               ],
