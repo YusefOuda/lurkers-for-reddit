@@ -1,6 +1,4 @@
-import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
 import 'package:lurkers_for_reddit/helpers/comment_helper.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
@@ -70,7 +68,7 @@ class _CommentViewState extends State<CommentView> {
                     ),
                   ),
                   Spacer(),
-                  vis.Visibility(
+                  Visibility(
                     visible: widget.childrenCollapsed,
                     child: Padding(
                       padding: EdgeInsets.only(right: 4.0),
@@ -132,7 +130,7 @@ class CommentView extends StatefulWidget {
   final int depth;
   final bool childrenCollapsed;
   final int numChildren;
-  final Submission submission;
+  final Dart.Submission submission;
 
   @override
   _CommentViewState createState() => _CommentViewState();

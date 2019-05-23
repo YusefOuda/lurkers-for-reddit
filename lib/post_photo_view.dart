@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 
 class PostPhotoView extends StatelessWidget {
-  final PhotoView photoView;
+  final String url;
 
-  PostPhotoView({this.photoView});
+  PostPhotoView({this.url});
 
   @override
   Widget build(BuildContext context) {
-    return photoView;
+    return PhotoView(
+      gaplessPlayback: true,
+      imageProvider: NetworkImage(url, headers: null),
+      backgroundDecoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+    );
   }
 }

@@ -1,11 +1,12 @@
-import 'package:draw/draw.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/visibility.dart' as vis;
 import 'package:draw/draw.dart' as Dart;
 import 'package:html_unescape/html_unescape.dart';
+import 'package:lurkers_for_reddit/helpers/submission_helper.dart';
 import 'package:lurkers_for_reddit/helpers/subreddit_helper.dart';
 import 'package:lurkers_for_reddit/main.dart';
+import 'package:lurkers_for_reddit/post_photo_view.dart';
 import 'package:lurkers_for_reddit/submission_comments.dart';
+import 'package:lurkers_for_reddit/transparent_route.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 
@@ -117,31 +118,45 @@ class _SubmissionViewState extends State<SubmissionView> {
             color: SubredditHelper.getSubColor(
                 widget.subreddits.firstWhere(
                     (x) =>
-                        (x.runtimeType == Subreddit ? x.displayName : x) ==
+                        (x.runtimeType == Dart.Subreddit ? x.displayName : x) ==
                         widget.submission.subreddit.displayName,
                     orElse: () => ""),
-                defaultColor: Theme.of(context).cardColor, opacity: 0.3),
+                defaultColor: Theme.of(context).cardColor,
+                opacity: 0.3),
             margin: EdgeInsets.all(7),
             child: Padding(
               padding: EdgeInsets.all(3.0),
               child: Row(
                 children: [
                   Expanded(
-                    flex: showThumbnail ? 3 : 0,
+                    flex: showThumbnail ? 4 : 0,
                     child: Container(
                       padding: EdgeInsets.only(right: 10.0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          vis.Visibility(
+                          Visibility(
                             visible: showThumbnail,
-                            child: FadeInImage.memoryNetwork(
-                              height: 80.0,
-                              width: 80.0,
-                              placeholder: kTransparentImage,
-                              image: thumb.toString(),
-                              fit: BoxFit.cover,
-                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  TransparentRoute(
+                                    builder: (context) => PostPhotoView(
+                                          url: SubmissionHelper.getImageUrl(widget.submission),
+                                        ),
+                                  ),
+                                );
+                              },
+                              child: Container(decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+                                child: FadeInImage.memoryNetwork(
+                                height: 80.0,
+                                width: 80.0,
+                                placeholder: kTransparentImage,
+                                image: thumb.toString(),
+                                fit: BoxFit.cover,
+                              ),
+                            ),),
                             replacement: Container(),
                           ),
                         ],
@@ -210,7 +225,7 @@ class _SubmissionViewState extends State<SubmissionView> {
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: <Widget>[
-                            vis.Visibility(
+                            Visibility(
                               visible: widget.submission.saved,
                               child: Icon(
                                 Icons.star,

@@ -1,12 +1,11 @@
 import 'package:draw/draw.dart' as dart;
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart' as material;
 import 'package:lurkers_for_reddit/helpers/post_type_helper.dart';
+import 'package:lurkers_for_reddit/helpers/submission_helper.dart';
 import 'package:lurkers_for_reddit/post_photo_view.dart';
+import 'package:lurkers_for_reddit/transparent_route.dart';
 import 'package:lurkers_for_reddit/video_viewer.dart';
 import 'package:lurkers_for_reddit/youtube_viewer.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:photo_view/photo_view.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as convert;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -18,32 +17,6 @@ class SubmissionBodyState extends State<SubmissionBody> {
   void initState() {
     super.initState();
     _vidUrl = getVideoUrl();
-  }
-
-  String getImageUrl() {
-    String imageUrl = "";
-    if (widget.submission.isSelf) return imageUrl;
-
-    if (widget.submission.variants.length > 0) {
-      var gifVariant = widget.submission.variants
-          .firstWhere((x) => x.containsKey('gif'))
-          .values
-          .toList()[0];
-      if (gifVariant != null) {
-        imageUrl = gifVariant.source.url.toString();
-      }
-    } else if (widget.submission.url.toString().contains('.jpg') ||
-        widget.submission.url.toString().contains('.jpeg') ||
-        widget.submission.url.toString().contains('.png') ||
-        widget.submission.url.toString().contains('.gif') ||
-        widget.submission.url.toString().contains('.webm')) {
-      imageUrl = widget.submission.url.toString();
-    } else if (widget.submission.preview.length > 0) {
-      imageUrl = widget.submission.preview[0].source.url.toString();
-    }
-
-    imageUrl = imageUrl.replaceAll('amp;', '').replaceAll('.gifv', '.mp4');
-    return imageUrl;
   }
 
   Future<String> getVideoUrl() async {
@@ -79,7 +52,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
   Widget build(BuildContext context) {
     String imageUrl;
     setState(() {
-      imageUrl = getImageUrl();
+      imageUrl = SubmissionHelper.getImageUrl(widget.submission);
     });
     String postUrl = widget.submission.url.toString();
     PostType type = PostTypeHelper.getPostType(widget.submission);
@@ -137,19 +110,12 @@ class SubmissionBodyState extends State<SubmissionBody> {
           onTap: () {
             Navigator.push(
               context,
-              MaterialPageRoute(
-                fullscreenDialog: true,
+              TransparentRoute(
                 builder: (context) => PostPhotoView(
-                      photoView: PhotoView(
-                        gaplessPlayback: true,
-                        imageProvider: NetworkImage(imageUrl, headers: null),
-                        backgroundDecoration:
-                            BoxDecoration(color: Colors.transparent),
-                      ),
+                      url: imageUrl,
                     ),
               ),
             );
-            _handleLink(postUrl, imageUrl);
           });
     }
 
@@ -170,14 +136,6 @@ class SubmissionBodyState extends State<SubmissionBody> {
       ),
     );
     return sliverAppBar;
-  }
-
-  _handleLink(url, String imageUrl) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw "cant open link";
-    }
   }
 }
 
