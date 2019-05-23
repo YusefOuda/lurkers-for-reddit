@@ -9,7 +9,6 @@ class PostPhotoView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PhotoView(
-      gaplessPlayback: true,
       imageProvider: NetworkImage(url, headers: null),
       backgroundDecoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
     );

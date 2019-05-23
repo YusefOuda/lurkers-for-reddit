@@ -17,10 +17,14 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'comment_view.dart';
 import 'more_comments_view.dart';
 
-class _SubmissionCommentsState extends State<SubmissionComments> {
+class _SubmissionCommentsState extends State<SubmissionComments>
+    with TickerProviderStateMixin {
   List<CommentAndDepth> _comments = [];
   bool _loading = false;
   WebViewController _webController;
+  AnimationController _animationController;
+  Animation<Offset> _offsetFloat;
+  ScrollController _scrollController = new ScrollController();
 
   @override
   void initState() {
@@ -37,10 +41,22 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
         _loading = false;
       }
     });
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 400),
+    );
+
+    _offsetFloat =
+        Tween<Offset>(begin: Offset(0.0, 0.0), end: Offset(0.0, -0.5))
+            .animate(_animationController);
+
+    _animationController.repeat(reverse: true);
   }
 
   @override
   void dispose() {
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -201,8 +217,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   style: TextStyle(fontSize: 10.0),
                 ),
                 TextSpan(
-                  text:
-                      "${widget.submission.domain}",
+                  text: "${widget.submission.domain}",
                   style: TextStyle(fontSize: 10.0),
                 ),
                 TextSpan(
@@ -377,6 +392,7 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   defaultColor: Theme.of(context).cardColor),
             ),
             body: ListView(
+              controller: _scrollController,
               shrinkWrap: true,
               children: <Widget>[
                 SizedBox(
@@ -457,7 +473,20 @@ class _SubmissionCommentsState extends State<SubmissionComments> {
                   height: 20,
                   width: MediaQuery.of(context).size.width,
                   child: Center(
-                    child: Icon(Icons.keyboard_arrow_up),
+                    child: SlideTransition(
+                      position: _offsetFloat,
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        icon: Icon(Icons.keyboard_arrow_up),
+                        onPressed: () {
+                          _scrollController.animateTo(
+                            MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - AppBar().preferredSize.height,
+                            curve: Curves.fastOutSlowIn,
+                            duration: const Duration(milliseconds: 1500),
+                          );
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 headerRow,
