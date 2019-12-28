@@ -1,4 +1,4 @@
-name: Flutter Web
+name: Deploy to Github Pages
 on:
   push:
     branches:
