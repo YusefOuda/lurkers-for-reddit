@@ -5,7 +5,7 @@ class TransparentRoute extends PageRoute<void> {
     @required this.builder,
     RouteSettings settings,
   })  : assert(builder != null),
-        super(settings: settings, fullscreenDialog: false);
+        super(settings: settings, fullscreenDialog: true);
 
   final WidgetBuilder builder;
 
@@ -13,13 +13,16 @@ class TransparentRoute extends PageRoute<void> {
   bool get opaque => false;
 
   @override
-  Color get barrierColor => null;
+  Color get barrierColor => Color.fromARGB(200, 0, 0, 0);
 
   @override
   String get barrierLabel => null;
 
   @override
   bool get maintainState => true;
+
+  @override
+  bool get barrierDismissible => true;
 
   @override
   Duration get transitionDuration => Duration(milliseconds: 350);

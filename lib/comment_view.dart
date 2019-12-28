@@ -88,6 +88,7 @@ class _CommentViewState extends State<CommentView> {
                 children: <Widget>[
                   Flexible(
                     child: MarkdownBody(
+                      selectable: true,
                       styleSheet:
                           MarkdownStyleSheet.fromTheme(Theme.of(context))
                               .copyWith(

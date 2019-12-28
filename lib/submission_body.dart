@@ -98,7 +98,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
       );
     } else if (type == PostType.Pic) {
       Widget picBackground = Image.network(imageUrl,
-        fit: BoxFit.contain,
+        //fit: BoxFit.contain,
       );
       background = InkWell(
           child: picBackground,

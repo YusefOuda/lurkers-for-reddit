@@ -193,8 +193,8 @@ class _SubmissionCommentsState extends State<SubmissionComments>
         );
         var subtitle = Padding(
           padding: EdgeInsets.only(top: 4.0),
-          child: RichText(
-            text: TextSpan(
+          child: SelectableText.rich(
+            TextSpan(
               children: <TextSpan>[
                 TextSpan(
                   text: "/u/${widget.submission.author}",
@@ -238,8 +238,8 @@ class _SubmissionCommentsState extends State<SubmissionComments>
             ),
           ),
         );
-        var aboveTitle = RichText(
-          text: TextSpan(
+        var aboveTitle = SelectableText.rich(
+          TextSpan(
             children: <TextSpan>[
               TextSpan(
                 text: TextHelper.convertScoreToAbbreviated(
@@ -358,6 +358,7 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                     child: Padding(
                       padding: EdgeInsets.all(20.0),
                       child: MarkdownBody(
+                        selectable: true,
                         styleSheet:
                             MarkdownStyleSheet.fromTheme(Theme.of(context))
                                 .copyWith(

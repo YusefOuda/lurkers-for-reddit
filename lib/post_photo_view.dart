@@ -8,9 +8,12 @@ class PostPhotoView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PhotoView(
-      imageProvider: NetworkImage(url, headers: null),
-      backgroundDecoration: BoxDecoration(color: Colors.black.withOpacity(0.9)),
+    return Dialog(
+      child: PhotoView(
+        tightMode: true,
+        imageProvider: NetworkImage(url, headers: null),
+        backgroundDecoration: BoxDecoration(color: Colors.black.withOpacity(0)),
+      ),
     );
   }
 }
