@@ -56,15 +56,18 @@ class _CommentViewState extends State<CommentView> {
                           widget.comment.authorFlairText.isNotEmpty
                       ? "  •  "
                       : ""),
-                  Expanded(
-                    flex: 8,
-                    child: Text(
-                      "${widget.comment.authorFlairText != null ? widget.comment.authorFlairText : ""}",
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.caption.copyWith(
-                          fontSize: 11.0,
-                          backgroundColor: Colors.blue.shade900),
+                  Visibility(
+                    visible: widget.comment.authorFlairText != null,
+                    child: Flexible(
+                      flex: 8,
+                      child: Text(
+                        "${widget.comment.authorFlairText}",
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.caption.copyWith(
+                            fontSize: 11.0,
+                            backgroundColor: Colors.blue.shade900),
+                      ),
                     ),
                   ),
                   Spacer(),
