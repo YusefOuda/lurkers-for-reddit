@@ -268,7 +268,7 @@ class _SubmissionViewState extends State<SubmissionView>
                               ),
                               Row(
                                 children: <Widget>[
-                                  Container(
+                                  Expanded(
                                     child: RichText(
                                       text: TextSpan(
                                         children: <TextSpan>[
@@ -280,7 +280,6 @@ class _SubmissionViewState extends State<SubmissionView>
                                                 .headline
                                                 .copyWith(fontSize: 15.0),
                                           ),
-                                          TextSpan(text: "  ")
                                         ],
                                       ),
                                     ),

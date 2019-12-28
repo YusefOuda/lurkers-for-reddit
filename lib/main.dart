@@ -15,7 +15,8 @@ void main() async {
   if (uri != null && uri.queryParameters.containsKey('code')) {
     redditSession.login(shouldLaunch: false).then((x) {
       redditSession.onAuthCode(uri.queryParameters['code']).then((y) {
-        js.context['location']['href'] = js.context['location']['origin'] + js.context['location']['pathname'];
+        js.context['location']['href'] = js.context['location']['origin'] +
+            js.context['location']['pathname'];
         runApp(MyApp());
       });
     });

@@ -11,7 +11,7 @@ class _CommentViewState extends State<CommentView> {
   Widget build(BuildContext context) {
     var unescape = HtmlUnescape();
     return Container(
-      margin: EdgeInsets.only(left: (widget.depth * 8.0)),
+      margin: EdgeInsets.only(left: (widget.depth * 8.0) + 20.0, right: 20.0),
       decoration: BoxDecoration(
           border: Border(bottom: BorderSide(color: Colors.black))),
       child: Container(
@@ -23,9 +23,9 @@ class _CommentViewState extends State<CommentView> {
             ),
           ),
         ),
-        padding: EdgeInsets.only(left: 6.0, right: 4.0),
+        padding: EdgeInsets.only(left: 12.0, right: 8.0),
         child: Padding(
-          padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+          padding: EdgeInsets.only(top: 20.0, bottom: 20.0),
           child: Column(
             children: <Widget>[
               Row(
@@ -33,7 +33,7 @@ class _CommentViewState extends State<CommentView> {
                   Text(
                     "/u/${widget.comment.author}",
                     style: Theme.of(context).textTheme.subtitle.copyWith(
-                        fontSize: 11.0,
+                        fontSize: 14.0,
                         backgroundColor:
                             widget.comment.author == widget.submission.author
                                 ? Colors.blue.shade600
@@ -44,14 +44,14 @@ class _CommentViewState extends State<CommentView> {
                       style: Theme.of(context)
                           .textTheme
                           .caption
-                          .copyWith(fontSize: 11.0)),
+                          .copyWith(fontSize: 14.0)),
                   Text("  •  "),
                   Text(
                       "${TimeConverter.convertUtcToDiffString(widget.comment.createdUtc)}",
                       style: Theme.of(context)
                           .textTheme
                           .caption
-                          .copyWith(fontSize: 11.0)),
+                          .copyWith(fontSize: 14.0)),
                   Text(widget.comment.authorFlairText != null &&
                           widget.comment.authorFlairText.isNotEmpty
                       ? "  •  "
@@ -65,7 +65,7 @@ class _CommentViewState extends State<CommentView> {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.caption.copyWith(
-                            fontSize: 11.0,
+                            fontSize: 14.0,
                             backgroundColor: Colors.blue.shade900),
                       ),
                     ),
