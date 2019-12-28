@@ -53,6 +53,7 @@ class SubmissionBodyState extends State<SubmissionBody> {
     String imageUrl;
     setState(() {
       imageUrl = SubmissionHelper.getImageUrl(widget.submission);
+      print(imageUrl);
     });
     String postUrl = widget.submission.url.toString();
     PostType type = PostTypeHelper.getPostType(widget.submission);
@@ -78,8 +79,8 @@ class SubmissionBodyState extends State<SubmissionBody> {
                     PageRouteBuilder(
                       opaque: false,
                       pageBuilder: (BuildContext context, _, __) => VideoViewer(
-                            url: snapshot.data,
-                          ),
+                        url: snapshot.data,
+                      ),
                     ),
                   );
                 }
@@ -96,15 +97,8 @@ class SubmissionBodyState extends State<SubmissionBody> {
         },
       );
     } else if (type == PostType.Pic) {
-      Widget picBackground = CachedNetworkImage(
-        fit: BoxFit.cover,
-        imageUrl: imageUrl,
-        placeholder: (context, url) => Center(
-              child: CircularProgressIndicator(),
-            ),
-        errorWidget: (context, url, error) => Center(
-              child: Icon(Icons.error),
-            ),
+      Widget picBackground = Image.network(imageUrl,
+        fit: BoxFit.contain,
       );
       background = InkWell(
           child: picBackground,
@@ -113,8 +107,8 @@ class SubmissionBodyState extends State<SubmissionBody> {
               context,
               TransparentRoute(
                 builder: (context) => PostPhotoView(
-                      url: imageUrl,
-                    ),
+                  url: imageUrl,
+                ),
               ),
             );
           });

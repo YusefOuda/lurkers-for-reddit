@@ -150,6 +150,8 @@ class _SubmissionViewState extends State<SubmissionView>
                                   child: InkWell(
                                     onTap: () {
                                       Widget overlay;
+                                      print(SubmissionHelper.getImageUrl(
+                                              widget.submission));
                                       var type = PostTypeHelper.getPostType(
                                           widget.submission);
                                       if (type == PostType.Pic) {
