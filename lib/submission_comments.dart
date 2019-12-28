@@ -180,7 +180,7 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                           },
                         )
                       : Padding(
-                          padding: EdgeInsets.all(10.0),
+                          padding: EdgeInsets.all(20.0),
                           child: Center(
                             child: Text(
                               "No comments!",
@@ -199,37 +199,41 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                 TextSpan(
                   text: "/u/${widget.submission.author}",
                   style: TextStyle(
-                      fontSize: 11.0,
+                      fontSize: 15.0,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       backgroundColor: Colors.blue.shade600),
                 ),
                 TextSpan(
                   text: "  •  ",
-                  style: TextStyle(fontSize: 10.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 TextSpan(
                   text:
                       "${TimeConverter.convertUtcToDiffString(widget.submission.createdUtc)} ago",
-                  style: TextStyle(fontSize: 10.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 TextSpan(
                   text: "  •  ",
-                  style: TextStyle(fontSize: 10.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 TextSpan(
                   text: "${widget.submission.domain}",
-                  style: TextStyle(fontSize: 10.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 TextSpan(
                   text: widget.submission.linkFlairText != null ? "  •  " : "",
-                  style: TextStyle(fontSize: 10.0),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 TextSpan(
-                    text: widget.submission.linkFlairText != null
-                        ? widget.submission.linkFlairText
-                        : "",
-                    style: TextStyle(
-                        backgroundColor: Colors.blue.shade900, fontSize: 10.0)),
+                  text: widget.submission.linkFlairText != null
+                      ? widget.submission.linkFlairText
+                      : "",
+                  style: TextStyle(
+                      color: Colors.white,
+                      backgroundColor: Colors.blue.shade900,
+                      fontSize: 16.0),
+                ),
               ],
             ),
           ),
@@ -242,36 +246,36 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                     widget.submission.score),
                 style: Theme.of(context).textTheme.subtitle.copyWith(
                     color: Colors.deepOrangeAccent,
-                    fontSize: 14.0,
+                    fontSize: 16.0,
                     fontWeight: FontWeight.bold),
               ),
               TextSpan(
                 text: "  •  ",
-                style: TextStyle(fontSize: 10.0),
+                style: TextStyle(fontSize: 16.0),
               ),
               TextSpan(
                 text: widget.submission.subreddit.displayName,
                 style: Theme.of(context)
                     .textTheme
                     .subtitle
-                    .copyWith(color: Colors.deepOrangeAccent, fontSize: 12.0),
+                    .copyWith(color: Colors.deepOrangeAccent, fontSize: 16.0),
               ),
               TextSpan(
                 text: "  •  ",
-                style: TextStyle(fontSize: 10.0),
+                style: TextStyle(fontSize: 16.0),
               ),
               TextSpan(
                 text: widget.submission.numComments.toString() + ' comments',
                 style: Theme.of(context)
                     .textTheme
                     .subtitle
-                    .copyWith(color: Colors.deepOrangeAccent, fontSize: 9.0),
+                    .copyWith(color: Colors.deepOrangeAccent, fontSize: 16.0),
               ),
             ],
           ),
         );
         var headerRow = Padding(
-          padding: EdgeInsets.all(7.0),
+          padding: EdgeInsets.all(20.0),
           child: Row(
             children: <Widget>[
               Expanded(
@@ -352,7 +356,7 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                         widget.submission.selftext.isNotEmpty,
                     replacement: Container(),
                     child: Padding(
-                      padding: EdgeInsets.all(10.0),
+                      padding: EdgeInsets.all(20.0),
                       child: MarkdownBody(
                         styleSheet:
                             MarkdownStyleSheet.fromTheme(Theme.of(context))
@@ -480,7 +484,9 @@ class _SubmissionCommentsState extends State<SubmissionComments>
                         icon: Icon(Icons.keyboard_arrow_up),
                         onPressed: () {
                           _scrollController.animateTo(
-                            MediaQuery.of(context).size.height - MediaQuery.of(context).padding.top - AppBar().preferredSize.height,
+                            MediaQuery.of(context).size.height -
+                                MediaQuery.of(context).padding.top -
+                                AppBar().preferredSize.height,
                             curve: Curves.fastOutSlowIn,
                             duration: const Duration(milliseconds: 1500),
                           );
