@@ -59,13 +59,14 @@ class _MyHomePageState extends State<MyHomePage> {
   String _userNameText = redditSession?.user?.displayName ?? "";
   List<dynamic> _subreddits = List<dynamic>();
   dynamic _currentSub = 'frontpage';
-  String _currentSort = 'hot';
+  String _currentSort = 'best';
   bool _bottomSheetOpen = false;
   Icon _subredditNavIcon = Icon(Icons.keyboard_arrow_up);
   Color _appBarColor;
   String _searchSubString = '';
 
   List<String> sorts = [
+    "best",
     "hot",
     "new",
     "rising",
