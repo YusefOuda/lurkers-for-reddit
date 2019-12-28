@@ -77,10 +77,10 @@ class _SubmissionViewState extends State<SubmissionView>
             context,
             MaterialPageRoute(
               builder: (context) => SubmissionComments(
-                    submission: widget.submission,
-                    subreddit: widget.subreddit,
-                    subreddits: widget.subreddits,
-                  ),
+                submission: widget.submission,
+                subreddit: widget.subreddit,
+                subreddits: widget.subreddits,
+              ),
             ),
           );
         },
@@ -95,9 +95,9 @@ class _SubmissionViewState extends State<SubmissionView>
             }
             return Future.value(true);
           },
-          direction: DismissDirection.endToStart,
+          direction: DismissDirection.horizontal,
           onDismissed: (direction) {
-            if (direction == DismissDirection.endToStart) {
+            if (direction == DismissDirection.horizontal) {
               var sub = widget.submission;
               widget.submission.hide().then((x) {
                 widget.onHide(sub);
@@ -128,294 +128,339 @@ class _SubmissionViewState extends State<SubmissionView>
                     orElse: () => ""),
                 defaultColor: Theme.of(context).cardColor,
                 opacity: 0.3),
-            margin: EdgeInsets.all(7),
+            margin:
+                EdgeInsets.only(left: 40.0, right: 40.0, top: 8.0, bottom: 8.0),
             child: Padding(
-              padding: EdgeInsets.all(3.0),
+              padding: EdgeInsets.all(7.0),
               child: Row(
                 children: [
                   Expanded(
-                    flex: showThumbnail ? 4 : 0,
-                    child: Container(
-                      padding: EdgeInsets.only(right: 10.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Visibility(
-                            visible: showThumbnail,
-                            child: InkWell(
-                              onTap: () {
-                                Widget overlay;
-                                var type = PostTypeHelper.getPostType(
-                                    widget.submission);
-                                if (type == PostType.Pic) {
-                                  overlay = PostPhotoView(
-                                    url: SubmissionHelper.getImageUrl(
-                                        widget.submission),
-                                  );
-                                } else if (type == PostType.Vid) {
-                                  overlay = VideoViewer(
-                                      url: widget.submission.url.toString());
-                                } else if (type == PostType.YouTube) {
-                                  overlay = Center(
-                                    child: SizedBox(
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      width: MediaQuery.of(context).size.width,
-                                      child: Material(
-                                        child: YoutubeViewer(
-                                          url: widget.submission.url.toString(),
-                                          autoplay: true,
-                                        ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Visibility(
+                          visible: showThumbnail,
+                          child: Container(
+                            padding: EdgeInsets.only(right: 10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Visibility(
+                                  visible: showThumbnail,
+                                  child: InkWell(
+                                    onTap: () {
+                                      Widget overlay;
+                                      var type = PostTypeHelper.getPostType(
+                                          widget.submission);
+                                      if (type == PostType.Pic) {
+                                        overlay = PostPhotoView(
+                                          url: SubmissionHelper.getImageUrl(
+                                              widget.submission),
+                                        );
+                                      } else if (type == PostType.Vid) {
+                                        overlay = VideoViewer(
+                                            url: widget.submission.url
+                                                .toString());
+                                      } else if (type == PostType.YouTube) {
+                                        overlay = Center(
+                                          child: SizedBox(
+                                            height: MediaQuery.of(context)
+                                                .size
+                                                .height,
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            child: Material(
+                                              child: YoutubeViewer(
+                                                url: widget.submission.url
+                                                    .toString(),
+                                                autoplay: true,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      } else if (type == PostType.Web) {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                SubmissionComments(
+                                              submission: widget.submission,
+                                              subreddit: widget.subreddit,
+                                              subreddits: widget.subreddits,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      Navigator.push(
+                                        context,
+                                        TransparentRoute(
+                                            builder: (context) => overlay),
+                                      );
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                          border:
+                                              Border.all(color: Colors.grey)),
+                                      child: FadeInImage.memoryNetwork(
+                                        height: 100.0,
+                                        width: 100.0,
+                                        placeholder: kTransparentImage,
+                                        image: thumb.toString(),
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
-                                  );
-                                } else if (type == PostType.Web) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => SubmissionComments(
-                                            submission: widget.submission,
-                                            subreddit: widget.subreddit,
-                                            subreddits: widget.subreddits,
-                                          ),
-                                    ),
-                                  );
-                                }
-                                Navigator.push(
-                                  context,
-                                  TransparentRoute(
-                                      builder: (context) => overlay),
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    border: Border.all(color: Colors.grey)),
-                                child: FadeInImage.memoryNetwork(
-                                  height: 80.0,
-                                  width: 80.0,
-                                  placeholder: kTransparentImage,
-                                  image: thumb.toString(),
-                                  fit: BoxFit.cover,
+                                  ),
+                                  replacement: Container(),
                                 ),
-                              ),
+                              ],
                             ),
-                            replacement: Container(),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: showThumbnail ? 10 : 13,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: <Widget>[
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: <Widget>[
-                            Flexible(
-                              child: Text(
-                                widget.submission.subreddit.path,
+                          replacement: Container(
+                            padding: EdgeInsets.only(right: 10.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.grey)),
+                                  child: FadeInImage.assetNetwork(
+                                    height: 100.0,
+                                    width: 100.0,
+                                    placeholder: "assets/placeholder.png",
+                                    image: "assets/placeholder.png",
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: <Widget>[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Container(
+                                    child: Text(
+                                      widget.submission.subreddit.path,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .caption
+                                          .copyWith(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 14.0),
+                                    ),
+                                  ),
+                                  Text(
+                                    ' by /u/' + widget.submission.author,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(fontSize: 14.0),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: <Widget>[
+                                  Container(
+                                    child: RichText(
+                                      text: TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(
+                                            text: unescape.convert(
+                                                widget.submission.title),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headline
+                                                .copyWith(fontSize: 15.0),
+                                          ),
+                                          TextSpan(text: "  ")
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: <Widget>[
+                                  Visibility(
+                                    visible: widget.submission.saved,
+                                    child: Icon(
+                                      Icons.star,
+                                      size: 10.0,
+                                      color: Colors.yellow,
+                                    ),
+                                  ),
+                                  Text(
+                                    "${widget.submission.numComments} comments in ",
+                                    maxLines: 1,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(fontSize: 14.0),
+                                  ),
+                                  Text(
+                                    TimeConverter.convertUtcToDiffString(
+                                        widget.submission.createdUtc),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .caption
+                                        .copyWith(fontSize: 14.0),
+                                  ),
+                                  Text("  •  "),
+                                  Container(
+                                    child: Text(
+                                      widget.submission.domain,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .caption
+                                          .copyWith(fontSize: 14.0),
+                                      overflow: TextOverflow.ellipsis,
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                  Text("  •  "),
+                                  Visibility(
+                                    visible: widget.submission.linkFlairText !=
+                                            null &&
+                                        widget.submission.linkFlairText != "",
+                                    child: Text(
+                                      widget.submission.linkFlairText ?? "",
+                                      style: TextStyle(
+                                          color: Colors.white,
+                                          backgroundColor: Colors.blue.shade900,
+                                          fontSize: 14.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          //flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: <Widget>[
+                              IconButton(
+                                alignment: Alignment.center,
+                                iconSize: 5.0,
+                                icon: Icon(
+                                  Icons.arrow_upward,
+                                  color: _upvoteColor,
+                                  size: 30.0,
+                                ),
+                                onPressed: () {
+                                  if (redditSession.user == null) {
+                                    Scaffold.of(context).hideCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text(
+                                          "You must be logged in to do that!"),
+                                    ));
+                                    return;
+                                  }
+                                  if (widget.submission.vote ==
+                                      Dart.VoteState.upvoted) {
+                                    widget.submission.clearVote().then((x) {
+                                      setState(() {
+                                        _upvoteColor = _defaultNonevoteColor;
+                                        _downvoteColor = _defaultNonevoteColor;
+                                        _score--;
+                                      });
+                                    }).catchError((e) {
+                                      Scaffold.of(context)
+                                          .hideCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                          content: Text(
+                                              "Vote failed. You're doing that too fast!")));
+                                    });
+                                  } else {
+                                    widget.submission.upvote().then((x) {
+                                      setState(() {
+                                        _upvoteColor = _defaultUpvoteColor;
+                                        _downvoteColor = _defaultNonevoteColor;
+                                        _score++;
+                                      });
+                                    }).catchError((e) {
+                                      Scaffold.of(context)
+                                          .hideCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                          content: Text(
+                                              "Vote failed. You're doing that too fast!")));
+                                    });
+                                  }
+                                },
+                              ),
+                              Text(
+                                "${TextHelper.convertScoreToAbbreviated(_score)}",
+                                textAlign: TextAlign.center,
+                                maxLines: 1,
                                 style: Theme.of(context)
                                     .textTheme
                                     .caption
                                     .copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 10.0),
+                                        color: widget.submission.score > 0
+                                            ? Colors.orange
+                                            : Colors.blue,
+                                        fontSize: 14.0),
                               ),
-                            ),
-                            Text(
-                              ' by /u/' + widget.submission.author,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  .copyWith(fontSize: 10.0),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Flexible(
-                              child: RichText(
-                                text: TextSpan(
-                                  children: <TextSpan>[
-                                    TextSpan(
-                                      text: unescape
-                                          .convert(widget.submission.title),
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .headline
-                                          .copyWith(fontSize: 15.0),
-                                    ),
-                                    TextSpan(text: "  "),
-                                    TextSpan(
-                                        text: widget.submission.linkFlairText !=
-                                                null
-                                            ? widget.submission.linkFlairText
-                                            : "",
-                                        style: TextStyle(
-                                            backgroundColor:
-                                                Colors.blue.shade900,
-                                            fontSize: 10.0)),
-                                  ],
+                              IconButton(
+                                alignment: Alignment.center,
+                                iconSize: 5.0,
+                                icon: Icon(
+                                  Icons.arrow_downward,
+                                  color: _downvoteColor,
+                                  size: 30.0,
                                 ),
+                                onPressed: () {
+                                  if (redditSession.user == null) {
+                                    Scaffold.of(context).hideCurrentSnackBar();
+                                    Scaffold.of(context).showSnackBar(SnackBar(
+                                      content: Text(
+                                          "You must be logged in to do that!"),
+                                    ));
+                                    return;
+                                  }
+                                  if (widget.submission.vote ==
+                                      Dart.VoteState.downvoted) {
+                                    widget.submission.clearVote().then((x) {
+                                      setState(() {
+                                        _upvoteColor = _defaultNonevoteColor;
+                                        _downvoteColor = _defaultNonevoteColor;
+                                        _score++;
+                                      });
+                                    }).catchError((e) {
+                                      Scaffold.of(context)
+                                          .hideCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                          content: Text(
+                                              "Vote failed. You're doing that too fast!")));
+                                    });
+                                  } else {
+                                    widget.submission.downvote().then((x) {
+                                      setState(() {
+                                        _upvoteColor = _defaultNonevoteColor;
+                                        _downvoteColor = _defaultDownvoteColor;
+                                        _score--;
+                                      });
+                                    }).catchError((e) {
+                                      Scaffold.of(context)
+                                          .hideCurrentSnackBar();
+                                      Scaffold.of(context).showSnackBar(SnackBar(
+                                          content: Text(
+                                              "Vote failed. You're doing that too fast!")));
+                                    });
+                                  }
+                                },
                               ),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            Visibility(
-                              visible: widget.submission.saved,
-                              child: Icon(
-                                Icons.star,
-                                size: 10.0,
-                                color: Colors.yellow,
-                              ),
-                            ),
-                            Text(
-                              "${widget.submission.numComments} comments in ",
-                              maxLines: 1,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  .copyWith(fontSize: 10.0),
-                            ),
-                            Text(
-                              TimeConverter.convertUtcToDiffString(
-                                  widget.submission.createdUtc),
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .caption
-                                  .copyWith(fontSize: 10.0),
-                            ),
-                            Text("  •  "),
-                            Flexible(
-                              child: Text(
-                                widget.submission.domain,
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption
-                                    .copyWith(fontSize: 10.0),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Flexible(
-                    flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        IconButton(
-                          alignment: Alignment.center,
-                          iconSize: 3.0,
-                          icon: Icon(
-                            Icons.arrow_upward,
-                            color: _upvoteColor,
-                            size: 24.0,
+                            ],
                           ),
-                          onPressed: () {
-                            if (redditSession.user == null) {
-                              Scaffold.of(context).hideCurrentSnackBar();
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                content:
-                                    Text("You must be logged in to do that!"),
-                              ));
-                              return;
-                            }
-                            if (widget.submission.vote ==
-                                Dart.VoteState.upvoted) {
-                              widget.submission.clearVote().then((x) {
-                                setState(() {
-                                  _upvoteColor = _defaultNonevoteColor;
-                                  _downvoteColor = _defaultNonevoteColor;
-                                  _score--;
-                                });
-                              }).catchError((e) {
-                                Scaffold.of(context).hideCurrentSnackBar();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        "Vote failed. You're doing that too fast!")));
-                              });
-                            } else {
-                              widget.submission.upvote().then((x) {
-                                setState(() {
-                                  _upvoteColor = _defaultUpvoteColor;
-                                  _downvoteColor = _defaultNonevoteColor;
-                                  _score++;
-                                });
-                              }).catchError((e) {
-                                Scaffold.of(context).hideCurrentSnackBar();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        "Vote failed. You're doing that too fast!")));
-                              });
-                            }
-                          },
-                        ),
-                        Text(
-                          "${TextHelper.convertScoreToAbbreviated(_score)}",
-                          textAlign: TextAlign.center,
-                          maxLines: 1,
-                          style: Theme.of(context).textTheme.caption.copyWith(
-                              color: widget.submission.score > 0
-                                  ? Colors.orange
-                                  : Colors.blue),
-                        ),
-                        IconButton(
-                          alignment: Alignment.center,
-                          iconSize: 3.0,
-                          icon: Icon(
-                            Icons.arrow_downward,
-                            color: _downvoteColor,
-                            size: 24.0,
-                          ),
-                          onPressed: () {
-                            if (redditSession.user == null) {
-                              Scaffold.of(context).hideCurrentSnackBar();
-                              Scaffold.of(context).showSnackBar(SnackBar(
-                                content:
-                                    Text("You must be logged in to do that!"),
-                              ));
-                              return;
-                            }
-                            if (widget.submission.vote ==
-                                Dart.VoteState.downvoted) {
-                              widget.submission.clearVote().then((x) {
-                                setState(() {
-                                  _upvoteColor = _defaultNonevoteColor;
-                                  _downvoteColor = _defaultNonevoteColor;
-                                  _score++;
-                                });
-                              }).catchError((e) {
-                                Scaffold.of(context).hideCurrentSnackBar();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        "Vote failed. You're doing that too fast!")));
-                              });
-                            } else {
-                              widget.submission.downvote().then((x) {
-                                setState(() {
-                                  _upvoteColor = _defaultNonevoteColor;
-                                  _downvoteColor = _defaultDownvoteColor;
-                                  _score--;
-                                });
-                              }).catchError((e) {
-                                Scaffold.of(context).hideCurrentSnackBar();
-                                Scaffold.of(context).showSnackBar(SnackBar(
-                                    content: Text(
-                                        "Vote failed. You're doing that too fast!")));
-                              });
-                            }
-                          },
                         ),
                       ],
                     ),
