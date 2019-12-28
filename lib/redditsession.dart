@@ -43,7 +43,7 @@ class RedditSession {
           deviceId: "$x$x");
     } else {
       var creds = Credentials.fromJson(userCredsString).toJson();
-      reddit = Reddit.restoreAuthenticatedInstance(creds,
+      reddit = Reddit.restoreInstalledAuthenticatedInstance(creds,
           clientId: _clientId,
           userAgent: _userAgent,
           redirectUri: _redirectUri);
