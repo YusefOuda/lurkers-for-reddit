@@ -43,7 +43,7 @@ class MoreCommentsView extends StatelessWidget {
                   child: Text(
                     "Load more comments...",
                     textAlign: TextAlign.end,
-                    style: TextStyle(fontSize: 12.0, color: Colors.deepOrangeAccent, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 14.0, color: Colors.deepOrangeAccent, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
