@@ -12,7 +12,7 @@ import 'package:lurkers_for_reddit/helpers/time_converter.dart';
 import 'package:lurkers_for_reddit/submission_body.dart';
 import 'package:html_unescape/html_unescape.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'comment_view.dart';
 import 'more_comments_view.dart';

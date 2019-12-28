@@ -1,0 +1,1 @@
+flutter build apk && cp C:/code/flutter_reddit/build/app/outputs/apk/release/app-release.apk  "C:/Users/Yusef/Google Drive/app-release.apk"

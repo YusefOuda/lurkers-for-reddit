@@ -5,14 +5,24 @@ import 'package:lurkers_for_reddit/helpers/user_hint_helper.dart';
 import 'package:transparent_image/transparent_image.dart';
 import 'helpers/text_helper.dart';
 import 'redditsession.dart';
-import 'package:uni_links/uni_links.dart';
 import 'package:lurkers_for_reddit/submission_list.dart';
+import 'dart:js' as js;
 
 var redditSession = RedditSession.instance;
 
 void main() async {
-  await redditSession.onReady();
-  runApp(MyApp());
+  var uri = Uri.tryParse(js.context['location']['href']);
+  if (uri != null && uri.queryParameters.containsKey('code')) {
+    redditSession.login(shouldLaunch: false).then((x) {
+      redditSession.onAuthCode(uri.queryParameters['code']).then((y) {
+        js.context['location']['href'] = js.context['location']['origin'] + js.context['location']['pathname'];
+        runApp(MyApp());
+      });
+    });
+  } else {
+    await redditSession.onReady();
+    runApp(MyApp());
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -315,20 +325,7 @@ class _MyHomePageState extends State<MyHomePage> {
               child: ListTile(
                 title: Text('Login'),
                 onTap: () {
-                  redditSession.login().then((x) {
-                    getUriLinksStream().listen((Uri uri) {
-                      final code = uri.queryParameters['code'];
-                      redditSession.onAuthCode(code).then((x) {
-                        setState(() {
-                          if (redditSession.user != null) {
-                            this._userNameText =
-                                redditSession?.user?.displayName ?? "";
-                            this.getSubreddits();
-                          }
-                        });
-                      });
-                    });
-                  });
+                  redditSession.login(shouldLaunch: true);
                 },
               ),
             ),

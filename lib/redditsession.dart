@@ -3,16 +3,28 @@ import "package:draw/draw.dart";
 import "package:oauth2/oauth2.dart";
 import "package:shared_preferences/shared_preferences.dart";
 import "package:url_launcher/url_launcher.dart";
-import 'package:device_info/device_info.dart';
+import 'dart:js' as js;
+import 'package:random_string/random_string.dart';
 
 class RedditSession {
   static final _userCredKey = "userCreds";
-  static final _clientId = "iC80jTVJZ9URdA";
-  static final _clientSecret = "";
+  static final _deviceIdKey = "deviceId";
+  static final _clientId = "Ld0WG1LTL9HZ_g";
   static final _userAgent =
-      "android:com.yusefouda.lurkers:v0.1.0 (by /u/lurkers-for-reddit)";
-  static final _redirectUri = Uri.parse("comyusefoudalurkersforreddit://auth");
-  DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      js.context['navigator']['userAgent'];
+  static final _redirectUri = Uri.parse("http://localhost:21948/");
+  static final Future<String> _deviceId = getDeviceId();
+
+  static Future<String> getDeviceId() async {
+    var sp = await SharedPreferences.getInstance();
+    var deviceId = sp.getString(_deviceIdKey);
+    if (deviceId == null || deviceId == "") {
+      deviceId = randomAlpha(10);
+      sp.setString(_deviceIdKey, deviceId);
+    }
+    return Future.value(deviceId);
+  }
+
 
   Reddit reddit;
   Redditor user;
@@ -20,44 +32,46 @@ class RedditSession {
   RedditSession._privateConstructor();
 
   Future<void> onReady() async {
+    var x = await _deviceId;
+    print(x);
     var sp = await SharedPreferences.getInstance();
     var userCredsString = sp.getString(_userCredKey);
-    var androidInfo = await deviceInfo.androidInfo;
-    var deviceId = androidInfo.androidId;
     if (userCredsString == null) {
       reddit = await Reddit.createUntrustedReadOnlyInstance(
           clientId: _clientId,
           userAgent: _userAgent,
-          deviceId: "$deviceId$deviceId");
+          deviceId: "$x$x");
     } else {
       var creds = Credentials.fromJson(userCredsString).toJson();
-      reddit = await Reddit.restoreAuthenticatedInstance(creds,
+      reddit = Reddit.restoreAuthenticatedInstance(creds,
           clientId: _clientId,
-          clientSecret: _clientSecret,
           userAgent: _userAgent,
           redirectUri: _redirectUri);
       user = await reddit.user.me();
     }
   }
 
-  Future<void> login() async {
+  Future<void> login({shouldLaunch = true}) async {
     reddit = Reddit.createWebFlowInstance(
         clientId: _clientId,
-        clientSecret: _clientSecret,
+        clientSecret: "",
         userAgent: _userAgent,
-        redirectUri: _redirectUri);
-
+        redirectUri: _redirectUri
+    );
     final authUrl = reddit.auth.url(["*"], _userAgent);
-    await launch(authUrl.toString());
+    if (shouldLaunch) {
+      await launch(authUrl.toString());
+    } else {
+      await Future.value(true);
+    }
   }
 
   Future<void> logout() async {
+    var x = await _deviceId;
     SharedPreferences sp = await SharedPreferences.getInstance();
     sp.remove(_userCredKey);
-    var androidInfo = await deviceInfo.androidInfo;
-    var deviceId = androidInfo.androidId;
     reddit = await Reddit.createUntrustedReadOnlyInstance(
-        clientId: _clientId, userAgent: _userAgent, deviceId: deviceId);
+        clientId: _clientId, userAgent: _userAgent, deviceId: x);
     user = null;
   }
 

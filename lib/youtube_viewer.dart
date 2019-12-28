@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_flutter/youtube_player_flutter.dart';
-
+import 'package:youtube_player/youtube_player.dart';
 class YoutubeViewerState extends State<YoutubeViewer> {
   @override
   Widget build(BuildContext context) {
     return YoutubePlayer(
+      quality: YoutubeQuality.FHD,
       context: context,
-      videoId: YoutubePlayer.convertUrlToId(widget.url),
+      source: widget.url,
       autoPlay: widget.autoplay,
-      showVideoProgressIndicator: true,
-
     );
   }
 }
