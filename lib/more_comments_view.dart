@@ -15,7 +15,7 @@ class MoreCommentsView extends StatelessWidget {
         onLoadTap(parentId);
       },
       child: Container(
-        margin: EdgeInsets.only(left: (depth * 8.0) + 20.0),
+        margin: EdgeInsets.only(left: (depth * 8.0) + 20.0, right: 20.0),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           border: Border(
