@@ -77,7 +77,7 @@ class _CommentViewState extends State<CommentView> {
                       padding: EdgeInsets.only(right: 4.0),
                       child: Text(
                         "+" + widget.numChildren.toString(),
-                        style: TextStyle(backgroundColor: Colors.greenAccent),
+                        style: TextStyle(color: Colors.green.shade700),
                       ),
                     ),
                     replacement: Container(),
