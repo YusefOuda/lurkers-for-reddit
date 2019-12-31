@@ -28,4 +28,5 @@ jobs:
           git checkout -b gh-pages
           git add --all
           git commit -m "update"
+          echo "lurkers.yusefouda.com" >> CNAME
           git push origin gh-pages -f
