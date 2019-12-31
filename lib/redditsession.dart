@@ -12,7 +12,7 @@ class RedditSession {
   static final _clientId = "Ld0WG1LTL9HZ_g";
   static final _userAgent =
       js.context['navigator']['userAgent'];
-  static final _redirectUri = Uri.parse("https://yusefouda.com/lurkers-for-reddit");
+  static final _redirectUri = Uri.parse("https://lurkers.yusefouda.com/");
   static final Future<String> _deviceId = getDeviceId();
 
   static Future<String> getDeviceId() async {
