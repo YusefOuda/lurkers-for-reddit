@@ -2,4 +2,4 @@
 
 A reddit client designed for Lurkers.
 
-To view the preview web app, go to https://yusefouda.com/lurkers-for-reddit using the latest version of Google Chrome.
+To view the preview web app, go to http://lurkers.yusefouda.com/ using the latest version of Google Chrome.
