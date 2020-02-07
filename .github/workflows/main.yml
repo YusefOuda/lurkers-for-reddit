@@ -1,4 +1,4 @@
-name: Flutter Web
+name: Deploy to Github Pages
 on:
   push:
     branches:
@@ -26,6 +26,7 @@ jobs:
           git status
           git remote add origin https://${{secrets.commit_secret}}@github.com/yusefouda/lurkers-for-reddit.git
           git checkout -b gh-pages
+          echo "lurkers.yusefouda.com" >> CNAME
           git add --all
           git commit -m "update"
           git push origin gh-pages -f
