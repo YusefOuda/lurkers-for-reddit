@@ -31,7 +31,7 @@ class VideoViewerState extends State<VideoViewer> {
     _controller = VideoPlayerController.network(widget.url);
     _initializeVideoPlayerFuture = _controller.initialize();
     _audioPlayer = AudioPlayer();
-    //_audioPlayer.setReleaseMode(ReleaseMode.STOP);
+    //TODO:wait for this to be implemented_audioPlayer.setReleaseMode(ReleaseMode.STOP);
     var audioUrl = getAudioUrl();
     _initializeAudioPlayerFuture = _audioPlayer.setUrl(audioUrl);
   }
@@ -39,7 +39,7 @@ class VideoViewerState extends State<VideoViewer> {
   @override
   void dispose() {
     _controller.dispose();
-    _audioPlayer.release();
+    //TODO:wait for this to be implemented_audioPlayer.release();
     super.dispose();
   }
 
